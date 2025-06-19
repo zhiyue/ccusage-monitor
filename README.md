@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
-A beautiful real-time terminal monitoring tool for Claude AI token usage. Track your token consumption, burn rate, and get predictions about when you'll run out of tokens.
+A beautiful real-time terminal monitoring tool for Claude AI token usage. Track your token consumption, burn rate, monthly session usage, and get predictions about when you'll run out of tokens.
 
 ![Claude Token Monitor Screenshot](doc/sc.png)
 
@@ -42,8 +42,10 @@ A beautiful real-time terminal monitoring tool for Claude AI token usage. Track 
 ## ✨ Features
 
 - **🔄 Real-time monitoring** - Updates every 3 seconds with smooth refresh
-- **📊 Visual progress bars** - Beautiful color-coded token and time progress bars
-- **🔮 Smart predictions** - Calculates when tokens will run out based on current burn rate
+- **📊 Visual progress bars** - Beautiful color-coded token, time, sessions, and prediction progress bars
+- **📅 Monthly session tracking** - Monitor your usage against the 50 sessions/month Max plan limit
+- **🔮 Session predictions** - Estimates total tokens for current session based on burn rate
+- **📊 Historical analytics** - Tracks maximum burn rate from previous sessions
 - **🤖 Auto-detection** - Automatically switches to custom max when Pro limit is exceeded
 - **📋 Multiple plan support** - Works with Pro, Max5, Max20, and auto-detect plans
 - **⚠️ Warning system** - Alerts when tokens exceed limits or will deplete before session reset
@@ -174,6 +176,17 @@ The monitor calculates burn rate based on all sessions from the last hour:
 - Analyzes token consumption across overlapping sessions
 - Provides accurate recent usage patterns
 - Updates predictions in real-time
+
+### Monthly Session Tracking
+
+For Claude Max plan users, the monitor tracks:
+
+- **Current month usage**: Counts non-gap billing blocks as sessions
+- **Sessions remaining**: Shows how many of your 50 monthly sessions are left
+- **Usage pace**: Visual progress bar showing monthly consumption
+- **Historical maximum**: Tracks your highest burn rate from previous sessions
+
+> **📅 Note**: Each 5-hour billing window counts as one session. Consecutive sessions without breaks each count toward your monthly limit.
 
 ---
 

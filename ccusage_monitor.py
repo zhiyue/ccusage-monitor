@@ -8,6 +8,8 @@ from datetime import datetime, timedelta, timezone
 import os
 import argparse
 import pytz
+from collections import defaultdict
+import calendar
 
 
 def run_ccusage():
@@ -70,6 +72,49 @@ def create_time_progress_bar(elapsed_minutes, total_minutes, width=50):
     
     remaining_time = format_time(max(0, total_minutes - elapsed_minutes))
     return f"⏰ [{blue}{blue_bar}{red}{red_bar}{reset}] {remaining_time}"
+
+
+def create_session_progress_bar(used_sessions, total_sessions, width=50):
+    """Create a session usage progress bar."""
+    if total_sessions <= 0:
+        percentage = 0
+    else:
+        percentage = min(100, (used_sessions / total_sessions) * 100)
+    
+    filled = int(width * percentage / 100)
+    
+    # Create the bar with orange fill and gray empty space
+    orange_bar = '█' * filled
+    gray_bar = '░' * (width - filled)
+    
+    # Color codes
+    orange = '\033[93m'  # Yellow/orange
+    gray = '\033[90m'    # Gray
+    reset = '\033[0m'
+    
+    remaining_sessions = max(0, total_sessions - used_sessions)
+    return f"📅 [{orange}{orange_bar}{gray}{gray_bar}{reset}] {remaining_sessions} left"
+
+
+def create_prediction_progress_bar(predicted_tokens, max_tokens, width=50):
+    """Create a prediction progress bar for estimated session burn."""
+    if max_tokens <= 0:
+        percentage = 0
+    else:
+        percentage = min(100, (predicted_tokens / max_tokens) * 100)
+    
+    filled = int(width * percentage / 100)
+    
+    # Create the bar with purple fill and gray empty space
+    purple_bar = '█' * filled
+    gray_bar = '░' * (width - filled)
+    
+    # Color codes
+    purple = '\033[95m'  # Magenta/purple
+    gray = '\033[90m'    # Gray
+    reset = '\033[0m'
+    
+    return f"🔮 [{purple}{purple_bar}{gray}{gray_bar}{reset}] {percentage:.1f}%"
 
 
 def print_header():
@@ -225,6 +270,86 @@ def parse_args():
     return parser.parse_args()
 
 
+def count_monthly_sessions(blocks, current_time):
+    """Count sessions in the current month and calculate sessions remaining."""
+    if not blocks:
+        return 0, 50
+    
+    # Get current month boundaries
+    current_month = current_time.month
+    current_year = current_time.year
+    
+    # Count unique sessions in current month (excluding gaps and active sessions)
+    monthly_sessions = 0
+    seen_sessions = set()
+    
+    for block in blocks:
+        if block.get('isGap', False):
+            continue
+            
+        start_time_str = block.get('startTime')
+        if not start_time_str:
+            continue
+            
+        start_time = datetime.fromisoformat(start_time_str.replace('Z', '+00:00'))
+        
+        # Check if session is in current month
+        if start_time.month == current_month and start_time.year == current_year:
+            # Use session start time as unique identifier
+            session_id = start_time_str
+            if session_id not in seen_sessions:
+                seen_sessions.add(session_id)
+                monthly_sessions += 1
+    
+    sessions_remaining = max(0, 50 - monthly_sessions)
+    return monthly_sessions, sessions_remaining
+
+
+def calculate_max_burn_from_history(blocks):
+    """Calculate the maximum burn rate from previous completed sessions."""
+    if not blocks:
+        return 0
+    
+    max_burn = 0
+    
+    for block in blocks:
+        if block.get('isGap', False) or block.get('isActive', False):
+            continue
+            
+        start_time_str = block.get('startTime')
+        actual_end_str = block.get('actualEndTime')
+        
+        if not start_time_str or not actual_end_str:
+            continue
+            
+        start_time = datetime.fromisoformat(start_time_str.replace('Z', '+00:00'))
+        end_time = datetime.fromisoformat(actual_end_str.replace('Z', '+00:00'))
+        
+        duration_minutes = (end_time - start_time).total_seconds() / 60
+        
+        if duration_minutes > 0:
+            tokens = block.get('totalTokens', 0)
+            burn_rate = tokens / duration_minutes
+            max_burn = max(max_burn, burn_rate)
+    
+    return max_burn
+
+
+def predict_session_burn(current_tokens, burn_rate, session_duration_minutes=300):
+    """Predict total tokens for current session based on burn rate."""
+    if burn_rate <= 0:
+        return current_tokens
+    
+    # Estimate how long session has been running
+    if current_tokens > 0:
+        estimated_elapsed = current_tokens / burn_rate
+        remaining_time = max(0, session_duration_minutes - estimated_elapsed)
+        predicted_additional = burn_rate * remaining_time
+        return current_tokens + predicted_additional
+    
+    return burn_rate * session_duration_minutes
+
+
 def get_token_limit(plan, blocks=None):
     """Get token limit based on plan type."""
     if plan == 'custom_max' and blocks:
@@ -314,6 +439,15 @@ def main():
             # Calculate burn rate from ALL sessions in the last hour
             burn_rate = calculate_hourly_burn_rate(data['blocks'], current_time)
             
+            # Calculate monthly session statistics
+            monthly_sessions, sessions_remaining = count_monthly_sessions(data['blocks'], current_time)
+            
+            # Calculate max burn rate from historical data
+            max_historical_burn = calculate_max_burn_from_history(data['blocks'])
+            
+            # Predict total burn for current session
+            predicted_total_burn = predict_session_burn(tokens_used, burn_rate)
+            
             # Reset time calculation - use fixed schedule or custom hour with timezone
             reset_time = get_next_reset_time(current_time, args.reset_hour, args.timezone)
             
@@ -355,6 +489,19 @@ def main():
             # Detailed stats
             print(f"🎯 {white}Tokens:{reset}         {white}{tokens_used:,}{reset} / {gray}~{token_limit:,}{reset} ({cyan}{tokens_left:,} left{reset})")
             print(f"🔥 {white}Burn Rate:{reset}      {yellow}{burn_rate:.1f}{reset} {gray}tokens/min{reset}")
+            print()
+            
+            # Session usage with progress bar
+            print(f"📊 {white}Sessions Used:{reset}   {create_session_progress_bar(monthly_sessions, 50)}")
+            print()
+            
+            # Predicted total burn with progress bar (compare against token limit)
+            print(f"🔮 {white}Session Predicted:{reset} {create_prediction_progress_bar(predicted_total_burn, token_limit)}")
+            print()
+            
+            # Additional stats without bars
+            print(f"📊 {white}Max Burn Rate:{reset} {yellow}{max_historical_burn:.1f}{reset} {gray}tokens/min{reset}")
+            print(f"🔥 {white}Current Burn:{reset}  {yellow}{burn_rate:.1f}{reset} {gray}tokens/min{reset}")
             print()
             
             # Predictions - convert to configured timezone for display
