@@ -1,7 +1,7 @@
 """Rich-based display module for beautiful terminal UI."""
 
 from datetime import datetime
-from typing import Any, Dict, List, Tuple
+from typing import List, Tuple, TypedDict
 
 from rich import box
 from rich.console import Console
@@ -12,12 +12,36 @@ from rich.table import Table
 from rich.text import Text
 
 
+class StatsData(TypedDict):
+    """Type definition for statistics data."""
+
+    tokens_used: int
+    token_limit: int
+    tokens_left: int
+    burn_rate: float
+    predicted_end: str
+    reset_time: str
+
+
+class DisplayData(TypedDict):
+    """Type definition for display data."""
+
+    token_pct: float
+    time_pct: float
+    tokens_used: int
+    token_limit: int
+    time_remaining: str
+    stats: StatsData
+    warnings: List[Tuple[str, str]]
+    status_message: str
+
+
 class RichDisplay:
     """Rich-based display manager for ccusage monitor."""
 
     def __init__(self):
-        self.console = Console()
-        self.layout = Layout()
+        self.console: Console = Console()
+        self.layout: Layout = Layout()
         self._setup_layout()
 
     def _setup_layout(self):
@@ -45,7 +69,7 @@ class RichDisplay:
         )
 
     def create_progress_panel(
-        self, token_pct: float, time_pct: float, tokens_used: int, token_limit: int, time_remaining: str
+        self, token_pct: float, time_pct: float, time_remaining: str
     ) -> Panel:
         """Create the progress bars panel."""
         # Token progress bar
@@ -74,7 +98,7 @@ class RichDisplay:
 
         return Panel(table, box=box.ROUNDED, border_style="dim")
 
-    def create_stats_panel(self, stats: Dict[str, Any]) -> Panel:
+    def create_stats_panel(self, stats: StatsData) -> Panel:
         """Create the statistics panel."""
         table = Table(show_header=False, box=None, padding=(0, 2))
         table.add_column(style="bold white", no_wrap=True)
@@ -129,7 +153,7 @@ class RichDisplay:
         status.append(" 🟨")
         return status
 
-    def update_display(self, data: Dict[str, Any]):
+    def update_display(self, data: DisplayData):
         """Update the entire display with new data."""
         # Update header
         self.layout["header"].update(self.create_header())
@@ -137,7 +161,7 @@ class RichDisplay:
         # Update progress
         self.layout["progress"].update(
             self.create_progress_panel(
-                data["token_pct"], data["time_pct"], data["tokens_used"], data["token_limit"], data["time_remaining"]
+                data["token_pct"], data["time_pct"], data["time_remaining"]
             )
         )
 
@@ -145,11 +169,11 @@ class RichDisplay:
         self.layout["stats"].update(self.create_stats_panel(data["stats"]))
 
         # Update warnings
-        self.layout["warnings"].update(self.create_warnings_panel(data.get("warnings", [])))
+        self.layout["warnings"].update(self.create_warnings_panel(data["warnings"]))
 
         # Update status
         self.layout["status"].update(
-            self.create_status_bar(datetime.now().strftime("%H:%M:%S"), data.get("status_message", "Smooth sailing..."))
+            self.create_status_bar(datetime.now().strftime("%H:%M:%S"), data["status_message"])
         )
 
 
