@@ -129,14 +129,14 @@ class TestMainFunction:
         # Mock failed ccusage call
         mock_run_ccusage.return_value = None
 
-        # Mock sleep to interrupt after a few iterations  
+        # Mock sleep to interrupt after a few iterations
         mock_sleep.side_effect = KeyboardInterrupt()
 
         def mock_print(*args, **kwargs):
             if args and args[0] == "Failed to get usage data":
                 raise KeyboardInterrupt()
             return None
-        
+
         with patch("builtins.print", side_effect=mock_print):
             with patch("ccusage_monitor.app.main.display.show_cursor"):
                 with patch("ccusage_monitor.app.main.display.clear_screen"):
@@ -173,7 +173,7 @@ class TestMainFunction:
             if args and args[0] == "No active session found":
                 raise KeyboardInterrupt()
             return None
-        
+
         with patch("builtins.print", side_effect=mock_print_no_active):
             with patch("ccusage_monitor.app.main.display.show_cursor"):
                 with patch("ccusage_monitor.app.main.display.clear_screen"):

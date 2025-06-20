@@ -58,7 +58,7 @@ def main() -> None:
     # Use Rich version if requested
     if args.rich:
         try:
-            from ccusage_monitor.main_rich import main_with_args as rich_main
+            from ccusage_monitor.app.main_rich import main_with_args as rich_main
 
             rich_main(args)
             return
