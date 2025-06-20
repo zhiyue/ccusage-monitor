@@ -14,7 +14,7 @@ from unittest.mock import MagicMock, patch
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from ccusage_monitor import calculations_optimized, data_optimized, display_optimized
-from ccusage_monitor.cache import Cache, _cache
+from ccusage_monitor.cache import Cache, cache
 
 
 class TestCache(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestCache(unittest.TestCase):
 
     def setUp(self):
         """Clear cache before each test."""
-        _cache.clear()
+        cache.clear()
 
     def test_cache_get_set(self):
         """Test basic cache get/set operations."""
@@ -66,7 +66,7 @@ class TestDataOptimized(unittest.TestCase):
 
     def setUp(self):
         """Clear cache before each test."""
-        _cache.clear()
+        cache.clear()
 
     @patch("shutil.which")
     def test_check_ccusage_cached(self, mock_which):
@@ -133,7 +133,7 @@ class TestCalculationsOptimized(unittest.TestCase):
 
     def setUp(self):
         """Clear cache before each test."""
-        _cache.clear()
+        cache.clear()
 
     def test_burn_rate_cached(self):
         """Test burn rate calculation is cached."""
@@ -220,7 +220,7 @@ class TestDisplayOptimized(unittest.TestCase):
 
     def setUp(self):
         """Clear cache before each test."""
-        _cache.clear()
+        cache.clear()
 
     def test_output_buffer(self):
         """Test output buffer functionality."""
