@@ -1,0 +1,54 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- GitHub Actions workflow for automated PyPI publishing
+- Support for installation via pip and uvx
+- Comprehensive test suite with pytest
+- Development dependencies in pyproject.toml
+- This CHANGELOG file
+
+### Changed
+- Updated Python requirement from 3.6+ to 3.8+
+- Improved README documentation for PyPI installation
+- Enhanced CONTRIBUTING guide with modern Python practices
+- Updated project URLs to new GitHub repository
+
+### Fixed
+- Various documentation inconsistencies
+
+## [0.0.2] - 2025-06-20
+
+### Added
+- First release to PyPI
+- Automatic package building and distribution
+
+### Changed
+- Project renamed to `ccusage-monitor` for PyPI
+- Updated all documentation to reflect new package name
+
+## [0.0.1] - 2025-06-20
+
+### Added
+- Initial release with core functionality
+- Real-time token usage monitoring
+- Beautiful terminal UI with progress bars
+- Smart burn rate predictions
+- Auto-detection of token limits
+- Support for Pro, Max5, and Max20 plans
+- Customizable reset times and timezones
+- Cross-platform support (Linux, macOS, Windows)
+
+### Contributors
+- Initial implementation by Maciek (maciek@roboblog.eu)
+- PyPI packaging and improvements by zhiyue (cszhiyue@gmail.com)
+
+[Unreleased]: https://github.com/zhiyue/ccusage-monitor/compare/v0.0.2...HEAD
+[0.0.2]: https://github.com/zhiyue/ccusage-monitor/compare/v0.0.1...v0.0.2
+[0.0.1]: https://github.com/zhiyue/ccusage-monitor/releases/tag/v0.0.1

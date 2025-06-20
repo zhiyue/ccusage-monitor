@@ -27,8 +27,8 @@ We welcome all kinds of contributions:
 ```bash
 # Fork the repository on GitHub
 # Then clone your fork
-git clone https://github.com/YOUR-USERNAME/Claude-Code-Usage-Monitor.git
-cd Claude-Code-Usage-Monitor
+git clone https://github.com/YOUR-USERNAME/ccusage-monitor.git
+cd ccusage-monitor
 ```
 
 ### 2. Set Up Development Environment
@@ -39,11 +39,11 @@ python3 -m venv venv
 source venv/bin/activate  # Linux/Mac
 # venv\Scripts\activate   # Windows
 
-# Install dependencies
-pip install -r requirements.txt
+# Install in development mode
+pip install -e .
 
-# Make script executable (Linux/Mac)
-chmod +x ccusage_monitor.py
+# Install development dependencies
+pip install pytest pytest-cov black isort mypy ruff
 ```
 
 ### 3. Create a Feature Branch
@@ -115,27 +115,42 @@ def predict_token_depletion(current_usage, burn_rate):
 ### 📁 Current Project Structure
 
 ```
-Claude-Code-Usage-Monitor/
-├── ccusage_monitor.py     # Main monitoring script
-├── pyproject.toml        # Package configuration for uvx
-├── requirements.txt      # Python dependencies
-├── README.md            # Main documentation
-├── CONTRIBUTING.md      # This file
-├── DEVELOPMENT.md       # Future development roadmap
-├── TROUBLESHOOTING.md   # Common issues and solutions
-└── doc/                 # Documentation assets
-    └── sc.png          # Screenshot
+ccusage-monitor/
+├── ccusage_monitor.py    # Main monitoring script
+├── pyproject.toml       # Modern Python packaging
+├── requirements.txt     # Python dependencies
+├── README.md           # Main documentation
+├── CONTRIBUTING.md     # This file
+├── ROADMAP.md         # Future development roadmap
+├── TROUBLESHOOTING.md  # Common issues and solutions
+├── CHANGELOG.md       # Version history
+├── tests/             # Test suite
+│   └── test_*.py     # Test files
+└── doc/              # Documentation assets
+    └── sc.png       # Screenshot
 ```
 
 ### 🧪 Testing Guidelines
 
-*Note: The project currently doesn't have a test suite. This is a great area for contribution!*
+The project uses pytest for testing. To run tests:
 
-When adding tests in the future:
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=ccusage_monitor
+
+# Run specific test file
+pytest tests/test_ccusage_monitor.py
+```
+
+When adding tests:
 - Test file naming: `test_*.py`
-- Use pytest for testing framework
+- Use pytest fixtures for setup
 - Test edge cases and error conditions
 - Ensure cross-platform compatibility
+- Aim for >80% code coverage
 
 ### 📝 Commit Message Format
 
@@ -160,27 +175,6 @@ git commit -m "Docs: Add examples for timezone configuration"
 
 
 ## 🎯 Contribution Areas (Priority)
-
-### 🔧 Core Features & Bug Fixes
-
-**Current Needs**:
-- Improve error handling
-- Add more configuration options
-- Optimize performance
-- Fix cross-platform issues
-- Add unit tests
-
-**Skills Helpful**:
-- Python development
-- Terminal/console applications
-- Cross-platform compatibility
-- Performance optimization
-
-**Getting Started**:
-1. Run the monitor on different platforms
-2. Identify and fix platform-specific issues
-3. Improve error messages and handling
-4. Add new configuration options
 
 ### 🔧 Core Features & Bug Fixes
 
@@ -235,7 +229,7 @@ What actually happened.
 - OS: [e.g. Ubuntu 20.04, Windows 11, macOS 12]
 - Python version: [e.g. 3.9.7]
 - ccusage version: [run: ccusage --version]
-- Monitor version: [git commit hash]
+- Monitor version: [e.g. 0.0.2 or git commit hash]
 
 **Error Output**
 ```
@@ -334,7 +328,7 @@ Help us test on different platforms:
 
 We're collecting **anonymized data** about token limits to improve auto-detection:
 
-**What to share in [Issue #1](https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor/issues/1)**:
+**What to share in [GitHub Issues](https://github.com/zhiyue/ccusage-monitor/issues)**:
 - Your subscription type (Pro, Teams, Enterprise)
 - Maximum tokens reached (custom_max value)
 - When the limit was exceeded
@@ -359,9 +353,8 @@ This helps prioritize development and improve user experience.
 
 Outstanding contributors will be featured:
 - **README acknowledgments**: Credit for major contributions
-- **Release notes**: Mention significant contributions
-- **Social media**: Share contributor achievements
-- **Reference letters**: Happy to provide references for good contributors
+- **CHANGELOG mentions**: Recognition in version history
+- **AUTHORS file**: Permanent record of contributors
 
 ### 🎖️ Contribution Levels
 

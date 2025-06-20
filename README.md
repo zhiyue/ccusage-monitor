@@ -1,6 +1,7 @@
 # 🎯 Claude Code Usage Monitor
 
-[![Python Version](https://img.shields.io/badge/python-3.6+-blue.svg)](https://python.org)
+[![PyPI version](https://badge.fury.io/py/ccusage-monitor.svg)](https://pypi.org/project/ccusage-monitor/)
+[![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
@@ -58,16 +59,14 @@ A beautiful real-time terminal monitoring tool for Claude AI token usage. Track 
 If you have [uv](https://github.com/astral-sh/uv) installed, you can run the monitor directly:
 
 ```bash
-# First, install ccusage globally (one-time setup)
-npm install -g ccusage
+# Install from PyPI (Recommended)
+uvx ccusage-monitor
 
-# Then run directly from GitHub
-uvx --from git+https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor.git ccusage-monitor
+# Or use pip
+pip install ccusage-monitor
 
-# Or clone and run locally
-git clone https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor.git
-cd Claude-Code-Usage-Monitor
-uvx --from . ccusage-monitor
+# Run the monitor
+ccusage-monitor
 ```
 
 #### Option 2: Traditional Installation
@@ -76,22 +75,21 @@ uvx --from . ccusage-monitor
 # Install Node.js dependency
 npm install -g ccusage
 
-# Clone the repository
-git clone https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor.git
-cd Claude-Code-Usage-Monitor
+# Install from PyPI
+pip install ccusage-monitor
 
-# Install Python dependencies
-pip install -r requirements.txt
+# Install ccusage CLI tool
+npm install -g ccusage
 
 # Run the monitor
-python ccusage_monitor.py
+ccusage-monitor
 ```
 
 ### 🔒 Production Setup (Recommended)
 
 #### Prerequisites
 
-1. **Python 3.6+** installed on your system
+1. **Python 3.8+** installed on your system
 2. **Node.js** for ccusage CLI tool
 
 ### Virtual Environment Setup
@@ -143,29 +141,23 @@ virtualenv venv
 # 1. Install ccusage globally
 npm install -g ccusage
 
-# 2. Clone the repository
-git clone https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor.git
-cd Claude-Code-Usage-Monitor
+# 2. Install ccusage-monitor
+pip install ccusage-monitor
 
-# 3. Create virtual environment
+# 3. Create virtual environment (optional but recommended)
 python3 -m venv venv
-# Or if using virtualenv package:
-# virtualenv venv
 
 # 4. Activate virtual environment
 # On Linux/Mac:
 source venv/bin/activate
 # On Windows:
-# venv\Scripts\activate
+venv\Scripts\activate
 
-# 5. Install Python dependencies
-pip install -r requirements.txt
+# 5. Install ccusage-monitor in virtual environment
+pip install ccusage-monitor
 
-# 6. Make script executable (Linux/Mac only)
-chmod +x ccusage_monitor.py
-
-# 7. Run the monitor
-python ccusage_monitor.py
+# 6. Run the monitor
+ccusage-monitor
 ```
 
 #### Daily Usage
@@ -173,16 +165,12 @@ python ccusage_monitor.py
 After initial setup, you only need:
 
 ```bash
-# Navigate to project directory
-cd Claude-Code-Usage-Monitor
-
 # Activate virtual environment
 source venv/bin/activate  # Linux/Mac
-# venv\Scripts\activate   # Windows
+venv\Scripts\activate   # Windows
 
 # Run monitor
-./ccusage_monitor.py  # Linux/Mac
-# python ccusage_monitor.py  # Windows
+ccusage-monitor
 
 # When done, deactivate
 deactivate
@@ -193,7 +181,7 @@ deactivate
 Create an alias for quick access:
 ```bash
 # Add to ~/.bashrc or ~/.zshrc
-alias claude-monitor='cd ~/Claude-Code-Usage-Monitor && source venv/bin/activate && ./ccusage_monitor.py'
+alias claude-monitor='ccusage-monitor'
 
 # Then just run:
 claude-monitor
@@ -207,13 +195,10 @@ claude-monitor
 
 ```bash
 # Using uvx (no installation required)
-uvx --from git+https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor.git ccusage-monitor
+uvx ccusage-monitor
 
-# Or if cloned locally with uvx
-uvx --from . ccusage-monitor
-
-# Traditional method (Pro plan - 7,000 tokens)
-./ccusage_monitor.py
+# Or with pip installation
+ccusage-monitor
 
 # Exit the monitor
 # Press Ctrl+C to gracefully exit
@@ -225,28 +210,28 @@ uvx --from . ccusage-monitor
 
 ```bash
 # Using uvx
-uvx --from . ccusage-monitor --plan pro      # Pro plan (~7,000 tokens) - Default
-uvx --from . ccusage-monitor --plan max5     # Max5 plan (~35,000 tokens)
-uvx --from . ccusage-monitor --plan max20    # Max20 plan (~140,000 tokens)
-uvx --from . ccusage-monitor --plan custom_max # Auto-detect from highest previous session
+uvx ccusage-monitor --plan pro      # Pro plan (~7,000 tokens) - Default
+uvx ccusage-monitor --plan max5     # Max5 plan (~35,000 tokens)
+uvx ccusage-monitor --plan max20    # Max20 plan (~140,000 tokens)
+uvx ccusage-monitor --plan custom_max # Auto-detect from highest previous session
 
 # Traditional method
-./ccusage_monitor.py --plan pro              # Pro plan (~7,000 tokens) - Default
-./ccusage_monitor.py --plan max5             # Max5 plan (~35,000 tokens)
-./ccusage_monitor.py --plan max20            # Max20 plan (~140,000 tokens)
-./ccusage_monitor.py --plan custom_max        # Auto-detect from highest previous session
+ccusage-monitor --plan pro              # Pro plan (~7,000 tokens) - Default
+ccusage-monitor --plan max5             # Max5 plan (~35,000 tokens)
+ccusage-monitor --plan max20            # Max20 plan (~140,000 tokens)
+ccusage-monitor --plan custom_max        # Auto-detect from highest previous session
 ```
 
 #### Custom Reset Times
 
 ```bash
 # Using uvx
-uvx --from . ccusage-monitor --reset-hour 3   # Reset at 3 AM
-uvx --from . ccusage-monitor --reset-hour 22  # Reset at 10 PM
+uvx ccusage-monitor --reset-hour 3   # Reset at 3 AM
+uvx ccusage-monitor --reset-hour 22  # Reset at 10 PM
 
 # Traditional method
-./ccusage_monitor.py --reset-hour 3           # Reset at 3 AM
-./ccusage_monitor.py --reset-hour 22          # Reset at 10 PM
+ccusage-monitor --reset-hour 3           # Reset at 3 AM
+ccusage-monitor --reset-hour 22          # Reset at 10 PM
 ```
 
 #### Timezone Configuration
@@ -255,16 +240,16 @@ The default timezone is **Europe/Warsaw**. Change it to any valid timezone:
 
 ```bash
 # Using uvx
-uvx --from . ccusage-monitor --timezone US/Eastern    # Use US Eastern Time
-uvx --from . ccusage-monitor --timezone Asia/Tokyo    # Use Tokyo time
-uvx --from . ccusage-monitor --timezone UTC           # Use UTC
-uvx --from . ccusage-monitor --timezone Europe/London # Use London time
+uvx ccusage-monitor --timezone US/Eastern    # Use US Eastern Time
+uvx ccusage-monitor --timezone Asia/Tokyo    # Use Tokyo time
+uvx ccusage-monitor --timezone UTC           # Use UTC
+uvx ccusage-monitor --timezone Europe/London # Use London time
 
 # Traditional method
-./ccusage_monitor.py --timezone US/Eastern    # Use US Eastern Time
-./ccusage_monitor.py --timezone Asia/Tokyo    # Use Tokyo time
-./ccusage_monitor.py --timezone UTC           # Use UTC
-./ccusage_monitor.py --timezone Europe/London # Use London time
+ccusage-monitor --timezone US/Eastern    # Use US Eastern Time
+ccusage-monitor --timezone Asia/Tokyo    # Use Tokyo time
+ccusage-monitor --timezone UTC           # Use UTC
+ccusage-monitor --timezone Europe/London # Use London time
 ```
 
 ### Available Plans
@@ -389,12 +374,12 @@ The auto-detection system:
 
 ```bash
 # Using uvx
-uvx --from . ccusage-monitor --reset-hour 9
-uvx --from . ccusage-monitor --reset-hour 9 --timezone US/Eastern
+uvx ccusage-monitor --reset-hour 9
+uvx ccusage-monitor --reset-hour 9 --timezone US/Eastern
 
 # Traditional method
-./ccusage_monitor.py --reset-hour 9
-./ccusage_monitor.py --reset-hour 9 --timezone US/Eastern
+ccusage-monitor --reset-hour 9
+ccusage-monitor --reset-hour 9 --timezone US/Eastern
 ```
 
 **Benefits**:
@@ -407,12 +392,12 @@ uvx --from . ccusage-monitor --reset-hour 9 --timezone US/Eastern
 
 ```bash
 # Using uvx
-uvx --from . ccusage-monitor --reset-hour 0   # Reset at midnight
-uvx --from . ccusage-monitor --reset-hour 23  # Late evening reset (11 PM)
+uvx ccusage-monitor --reset-hour 0   # Reset at midnight
+uvx ccusage-monitor --reset-hour 23  # Late evening reset (11 PM)
 
 # Traditional method
-./ccusage_monitor.py --reset-hour 0   # Reset at midnight
-./ccusage_monitor.py --reset-hour 23  # Late evening reset (11 PM)
+ccusage-monitor --reset-hour 0   # Reset at midnight
+ccusage-monitor --reset-hour 23  # Late evening reset (11 PM)
 ```
 
 **Strategy**:
@@ -425,12 +410,12 @@ uvx --from . ccusage-monitor --reset-hour 23  # Late evening reset (11 PM)
 
 ```bash
 # Using uvx
-uvx --from . ccusage-monitor --plan custom_max
-uvx --from . ccusage-monitor --plan custom_max --reset-hour 6
+uvx ccusage-monitor --plan custom_max
+uvx ccusage-monitor --plan custom_max --reset-hour 6
 
 # Traditional method
-./ccusage_monitor.py --plan custom_max
-./ccusage_monitor.py --plan custom_max --reset-hour 6
+ccusage-monitor --plan custom_max
+ccusage-monitor --plan custom_max --reset-hour 6
 ```
 
 **Approach**:
@@ -443,16 +428,16 @@ uvx --from . ccusage-monitor --plan custom_max --reset-hour 6
 
 ```bash
 # Using uvx
-uvx --from . ccusage-monitor --timezone America/New_York  # US East Coast
-uvx --from . ccusage-monitor --timezone Europe/London     # Europe
-uvx --from . ccusage-monitor --timezone Asia/Singapore    # Asia Pacific
-uvx --from . ccusage-monitor --timezone UTC --reset-hour 12  # UTC coordination
+uvx ccusage-monitor --timezone America/New_York  # US East Coast
+uvx ccusage-monitor --timezone Europe/London     # Europe
+uvx ccusage-monitor --timezone Asia/Singapore    # Asia Pacific
+uvx ccusage-monitor --timezone UTC --reset-hour 12  # UTC coordination
 
 # Traditional method
-./ccusage_monitor.py --timezone America/New_York  # US East Coast
-./ccusage_monitor.py --timezone Europe/London     # Europe
-./ccusage_monitor.py --timezone Asia/Singapore    # Asia Pacific
-./ccusage_monitor.py --timezone UTC --reset-hour 12  # UTC coordination
+ccusage-monitor --timezone America/New_York  # US East Coast
+ccusage-monitor --timezone Europe/London     # Europe
+ccusage-monitor --timezone Asia/Singapore    # Asia Pacific
+ccusage-monitor --timezone UTC --reset-hour 12  # UTC coordination
 ```
 
 #### ⚡ Quick Check
@@ -463,7 +448,7 @@ uvx --from . ccusage-monitor --timezone UTC --reset-hour 12  # UTC coordination
 uvx --from git+https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor.git ccusage-monitor
 
 # Traditional method
-./ccusage_monitor.py
+ccusage-monitor
 
 # Press Ctrl+C after checking status
 ```
@@ -475,7 +460,7 @@ uvx --from git+https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor.git 
 **Start with Default (Recommended for New Users)**
 ```bash
 # Pro plan detection with auto-switching
-./ccusage_monitor.py
+ccusage-monitor
 ```
 - Monitor will detect if you exceed Pro limits
 - Automatically switches to custom_max if needed
@@ -484,16 +469,16 @@ uvx --from git+https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor.git 
 **Known Subscription Users**
 ```bash
 # If you know you have Max5
-./ccusage_monitor.py --plan max5
+ccusage-monitor --plan max5
 
 # If you know you have Max20
-./ccusage_monitor.py --plan max20
+ccusage-monitor --plan max20
 ```
 
 **Unknown Limits**
 ```bash
 # Auto-detect from previous usage
-./ccusage_monitor.py --plan custom_max
+ccusage-monitor --plan custom_max
 ```
 
 ### Best Practices
@@ -503,7 +488,7 @@ uvx --from git+https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor.git 
 1. **Start Early in Sessions**
    ```bash
    # Begin monitoring when starting Claude work
-   ./ccusage_monitor.py
+   ccusage-monitor
    ```
    - Gives accurate session tracking from the start
    - Better burn rate calculations
@@ -523,7 +508,7 @@ uvx --from git+https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor.git 
 3. **Custom Shell Alias**
    ```bash
    # Add to ~/.bashrc or ~/.zshrc
-   alias claude-monitor='cd ~/Claude-Code-Usage-Monitor && source venv/bin/activate && ./ccusage_monitor.py'
+   alias claude-monitor='cd ~/Claude-Code-Usage-Monitor && source venv/bin/activate && ccusage-monitor'
    ```
 
 #### Usage Best Practices
@@ -536,7 +521,7 @@ uvx --from git+https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor.git 
 2. **Strategic Session Planning**
    ```bash
    # Plan heavy usage around reset times
-   ./ccusage_monitor.py --reset-hour 9
+   ccusage-monitor --reset-hour 9
    ```
    - Schedule large tasks after resets
    - Use lighter tasks when approaching limits
@@ -545,7 +530,7 @@ uvx --from git+https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor.git 
 3. **Timezone Awareness**
    ```bash
    # Always use your actual timezone
-   ./ccusage_monitor.py --timezone Europe/Warsaw
+   ccusage-monitor --timezone Europe/Warsaw
    ```
    - Accurate reset time predictions
    - Better planning for work schedules
@@ -561,7 +546,7 @@ uvx --from git+https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor.git 
 2. **Workflow Integration**
    ```bash
    # Start monitoring with your development session
-   tmux new-session -d -s claude-monitor './ccusage_monitor.py'
+   tmux new-session -d -s claude-monitor 'ccusage-monitor'
    
    # Check status anytime
    tmux attach -t claude-monitor
@@ -577,7 +562,7 @@ uvx --from git+https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor.git 
 **Large Project Development**
 ```bash
 # Setup for sustained development
-./ccusage_monitor.py --plan max20 --reset-hour 8 --timezone America/New_York
+ccusage-monitor --plan max20 --reset-hour 8 --timezone America/New_York
 ```
 
 **Daily Routine**:
@@ -590,13 +575,13 @@ uvx --from git+https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor.git 
 **Learning & Experimentation**
 ```bash
 # Flexible setup for learning
-./ccusage_monitor.py --plan pro
+ccusage-monitor --plan pro
 ```
 
 **Sprint Development**
 ```bash
 # High-intensity development setup
-./ccusage_monitor.py --plan max20 --reset-hour 6
+ccusage-monitor --plan max20 --reset-hour 6
 ```
 
 ## Troubleshooting
@@ -611,7 +596,7 @@ If you encounter the error `No active session found`, please follow these steps:
    If the issue persists, consider specifying a custom configuration path. By default, Claude Code uses `~/.config/claude`. You may need to adjust this path depending on your environment.
 
 ```bash
-CLAUDE_CONFIG_DIR=~/.config/claude ./ccusage_monitor.py
+CLAUDE_CONFIG_DIR=~/.config/claude ccusage-monitor
 ```
 ---
 
@@ -619,7 +604,7 @@ CLAUDE_CONFIG_DIR=~/.config/claude ./ccusage_monitor.py
 
 Have questions, suggestions, or want to collaborate? Feel free to reach out!
 
-**📧 Email**: [maciek@roboblog.eu](mailto:maciek@roboblog.eu)
+**📧 Email**: [cszhiyue@gmail.com](mailto:cszhiyue@gmail.com)
 
 Whether you need help with setup, have feature requests, found a bug, or want to discuss potential improvements, don't hesitate to get in touch. I'm always happy to help and hear from users of the Claude Code Usage Monitor!
 
@@ -649,6 +634,6 @@ This tool builds upon the excellent [ccusage](https://github.com/ryoppippi/ccusa
 
 **⭐ Star this repo if you find it useful! ⭐**
 
-[Report Bug](https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor/issues) • [Request Feature](https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor/issues) • [Contribute](CONTRIBUTING.md)
+[Report Bug](https://github.com/zhiyue/ccusage-monitor/issues) • [Request Feature](https://github.com/zhiyue/ccusage-monitor/issues) • [Contribute](CONTRIBUTING.md)
 
 </div>
