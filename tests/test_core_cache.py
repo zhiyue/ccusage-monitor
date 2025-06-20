@@ -40,16 +40,10 @@ class TestCache:
         """Test cache TTL expiration."""
         test_cache = Cache()
 
-        # Set value
-        test_cache.set("key1", "value1")
-
-        # Should be available immediately
-        assert test_cache.get("key1", ttl=1) == "value1"
-
         # Mock time to simulate expiration
-        with patch("time.time") as mock_time:
+        with patch("ccusage_monitor.core.cache.time.time") as mock_time:
             # Set initial time when value was stored
-            original_time = time.time()
+            original_time = 1000.0
             mock_time.return_value = original_time
 
             # Set the value with known timestamp
@@ -63,8 +57,8 @@ class TestCache:
         """Test cache value within TTL."""
         test_cache = Cache()
 
-        with patch("time.time") as mock_time:
-            original_time = time.time()
+        with patch("ccusage_monitor.core.cache.time.time") as mock_time:
+            original_time = 1000.0
             mock_time.return_value = original_time
 
             test_cache.set("key1", "value1")

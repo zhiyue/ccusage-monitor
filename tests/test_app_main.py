@@ -8,18 +8,33 @@ import pytest
 from ccusage_monitor.app.main import main
 
 
+def create_mock_args(**overrides):
+    """Create a mock arguments object with all required attributes."""
+    mock_args = MagicMock()
+    mock_args.rich = False
+    mock_args.plan = "pro"
+    mock_args.reset_hour = None
+    mock_args.timezone = "Europe/Warsaw"
+    mock_args.performance = False
+    mock_args.refresh = 3
+
+    # Apply any overrides
+    for key, value in overrides.items():
+        setattr(mock_args, key, value)
+
+    return mock_args
+
+
 class TestMainFunction:
     """Test the main application function."""
 
-    @patch("ccusage_monitor.core.config.parse_args")
-    @patch("ccusage_monitor.core.data.check_ccusage_installed")
+    @patch("ccusage_monitor.app.main.parse_args")
+    @patch("ccusage_monitor.app.main.check_ccusage_installed")
     @patch("builtins.print")
     def test_main_exits_when_ccusage_not_installed(self, mock_print, mock_check, mock_parse):
         """Test main exits when ccusage is not installed."""
         # Mock arguments
-        mock_args = MagicMock()
-        mock_args.rich = False
-        mock_parse.return_value = mock_args
+        mock_parse.return_value = create_mock_args()
 
         # Mock ccusage not installed
         mock_check.return_value = False
@@ -31,26 +46,23 @@ class TestMainFunction:
         mock_check.assert_called_once()
         mock_print.assert_called()
 
-    @patch("ccusage_monitor.core.config.parse_args")
+    @patch("ccusage_monitor.app.main.parse_args")
     @patch("ccusage_monitor.app.main_rich.main_with_args")
     def test_main_uses_rich_when_requested(self, mock_rich_main, mock_parse):
         """Test main uses rich version when requested."""
         # Mock arguments with rich=True
-        mock_args = MagicMock()
-        mock_args.rich = True
+        mock_args = create_mock_args(rich=True)
         mock_parse.return_value = mock_args
 
         main()
 
         mock_rich_main.assert_called_once_with(mock_args)
 
-    @patch("ccusage_monitor.core.config.parse_args")
+    @patch("ccusage_monitor.app.main.parse_args")
     @patch("builtins.print")
     def test_main_handles_rich_import_error(self, mock_print, mock_parse):
         """Test main handles rich import error gracefully."""
-        mock_args = MagicMock()
-        mock_args.rich = True
-        mock_parse.return_value = mock_args
+        mock_parse.return_value = create_mock_args(rich=True)
 
         # Mock import error
         with patch("ccusage_monitor.app.main_rich.main_with_args", side_effect=ImportError):

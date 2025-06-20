@@ -38,7 +38,18 @@ def parse_args() -> CLIArgs:
         default=3,
         help="Refresh interval in seconds (default: 3, for rich mode)",
     )
-    return parser.parse_args(namespace=CLIArgs())
+    args = parser.parse_args()
+
+    # Create a CLIArgs instance with the parsed values
+    cli_args = CLIArgs()
+    cli_args.plan = args.plan
+    cli_args.reset_hour = args.reset_hour
+    cli_args.timezone = args.timezone
+    cli_args.performance = args.performance
+    cli_args.rich = args.rich
+    cli_args.refresh = args.refresh
+
+    return cli_args
 
 
 # Color constants
