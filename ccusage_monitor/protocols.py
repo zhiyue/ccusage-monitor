@@ -51,6 +51,10 @@ class DisplayProtocol(Protocol):
 
     def show_cursor(self) -> None: ...
 
+    def writeln(self, text: str = "") -> None: ...
+
+    def flush_buffer(self) -> None: ...
+
 
 class DataProtocol(Protocol):
     """A protocol for data modules to ensure type safety."""

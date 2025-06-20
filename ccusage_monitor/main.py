@@ -175,13 +175,15 @@ def main() -> None:
                 # If no burn rate or tokens already depleted, use reset time
                 predicted_end_time = reset_time
 
+            # Initialize output list for non-optimized display
+            output: List[str] = []
+            
             # Build output based on whether we're using optimized display
             if OPTIMIZED and hasattr(display, "_buffer"):
                 # Use the buffer from display_optimized
                 display.print_header()
             else:
                 # Build output in memory first for regular display
-                output: List[str] = []
                 # Header
                 output.append(f"{cyan}✦ ✧ ✦ ✧ {reset}{cyan}CLAUDE TOKEN MONITOR{reset} {cyan}✦ ✧ ✦ ✧ {reset}")
                 output.append(f"{cyan}{'=' * 60}{reset}")
