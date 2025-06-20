@@ -61,6 +61,9 @@ ccusage-monitor/
 - Always explicitly add each file with `git add <filename>`
 - Review changes with `git status` before staging
 - Always test before committing
+- **ALWAYS run `ruff check --fix` before committing** to auto-fix code style issues
+  - If ruff reports issues that can't be auto-fixed, manually fix them
+  - Ensure all Python files pass ruff checks before committing
 
 ## Dependencies
 
@@ -136,6 +139,46 @@ black .
 # Check formatting without changing
 black --check .
 ```
+
+## Pre-Commit Checklist
+
+Before committing any code changes:
+
+1. **Run ruff to check and fix code style**:
+   ```bash
+   # Auto-fix all fixable issues
+   ruff check --fix .
+   
+   # Check if any issues remain
+   ruff check .
+   ```
+
+2. **Run tests to ensure nothing is broken**:
+   ```bash
+   pytest
+   ```
+
+3. **Check test coverage** (optional but recommended):
+   ```bash
+   pytest --cov=ccusage_monitor
+   ```
+
+4. **Stage only the files you modified**:
+   ```bash
+   git add <specific-file>
+   # Never use git add . or git add -A
+   ```
+
+5. **Review your changes**:
+   ```bash
+   git status
+   git diff --cached
+   ```
+
+6. **Commit with a clear message**:
+   ```bash
+   git commit -m "type: description"
+   ```
 
 ## Common Tasks
 

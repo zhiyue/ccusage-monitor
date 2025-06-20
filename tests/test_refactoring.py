@@ -3,10 +3,9 @@
 Tests for refactored modules - TDD approach for refactoring ccusage_monitor.py
 """
 
-import unittest
-from unittest.mock import patch, MagicMock
-import sys
 import os
+import sys
+import unittest
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -62,7 +61,7 @@ class TestMainModule(unittest.TestCase):
         """Test that main module is under 300 lines."""
         main_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'ccusage_monitor.py')
         if os.path.exists(main_file):
-            with open(main_file, 'r') as f:
+            with open(main_file) as f:
                 lines = f.readlines()
                 self.assertLess(len(lines), 300, "Main module should be under 300 lines after refactoring")
 

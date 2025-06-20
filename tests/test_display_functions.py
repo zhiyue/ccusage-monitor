@@ -11,9 +11,8 @@ from unittest.mock import patch
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from ccusage_monitor import display, data
-from ccusage_monitor import main as main_func
-from ccusage_monitor.main import parse_args, main
+from ccusage_monitor import display
+from ccusage_monitor.main import main, parse_args
 
 
 class TestPrintHeader(unittest.TestCase):
