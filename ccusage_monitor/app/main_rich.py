@@ -47,31 +47,30 @@ def main_with_args(args: CLIArgs):
 
     try:
         # Use Rich's Live display for flicker-free updates
-        with Live(display.layout, refresh_per_second=4, screen=True, transient=False):
+        with Live(console=display.console, refresh_per_second=4, screen=True, transient=False) as live:
             while True:
                 ccusage_data = data.run_ccusage()
                 if not ccusage_data or "blocks" not in ccusage_data:
                     # Update with error message
-                    display.update_display(
-                        {
-                            "token_pct": 0,
-                            "time_pct": 0,
+                    error_data = {
+                        "token_pct": 0,
+                        "time_pct": 0,
+                        "tokens_used": 0,
+                        "token_limit": token_limit,
+                        "time_remaining": "N/A",
+                        "stats": {
                             "tokens_used": 0,
                             "token_limit": token_limit,
-                            "time_remaining": "N/A",
-                            "stats": {
-                                "tokens_used": 0,
-                                "token_limit": token_limit,
-                                "tokens_left": token_limit,
-                                "burn_rate": 0,
-                                "predicted_end": "N/A",
-                                "reset_time": "N/A",
-                                "cost_usd": 0.0,
-                            },
-                            "warnings": [("Failed to get usage data", "red")],
-                            "status_message": "Waiting for data...",
-                        }
-                    )
+                            "tokens_left": token_limit,
+                            "burn_rate": 0,
+                            "predicted_end": "N/A",
+                            "reset_time": "N/A",
+                            "cost_usd": 0.0,
+                        },
+                        "warnings": [("Failed to get usage data", "red")],
+                        "status_message": "Waiting for data...",
+                    }
+                    live.update(display.create_display_group(error_data))
                     time.sleep(args.refresh)
                     continue
 
@@ -83,26 +82,25 @@ def main_with_args(args: CLIArgs):
                         break
 
                 if not active_block:
-                    display.update_display(
-                        {
-                            "token_pct": 0,
-                            "time_pct": 0,
+                    no_session_data = {
+                        "token_pct": 0,
+                        "time_pct": 0,
+                        "tokens_used": 0,
+                        "token_limit": token_limit,
+                        "time_remaining": "N/A",
+                        "stats": {
                             "tokens_used": 0,
                             "token_limit": token_limit,
-                            "time_remaining": "N/A",
-                            "stats": {
-                                "tokens_used": 0,
-                                "token_limit": token_limit,
-                                "tokens_left": token_limit,
-                                "burn_rate": 0,
-                                "predicted_end": "N/A",
-                                "reset_time": "N/A",
-                                "cost_usd": 0.0,
-                            },
-                            "warnings": [("No active session found", "yellow")],
-                            "status_message": "Waiting for session...",
-                        }
-                    )
+                            "tokens_left": token_limit,
+                            "burn_rate": 0,
+                            "predicted_end": "N/A",
+                            "reset_time": "N/A",
+                            "cost_usd": 0.0,
+                        },
+                        "warnings": [("No active session found", "yellow")],
+                        "status_message": "Waiting for session...",
+                    }
+                    live.update(display.create_display_group(no_session_data))
                     time.sleep(args.refresh)
                     continue
 
@@ -155,35 +153,34 @@ def main_with_args(args: CLIArgs):
                 # Build warnings
                 warnings: List[Tuple[str, str]] = []
                 if tokens_used > 7000 and args.plan == "pro" and token_limit > 7000:
-                    warnings.append(
-                        (f"🔄 Tokens exceeded Pro limit - switched to custom_max ({token_limit:,})", "yellow")
-                    )
+                    warnings.append(("🔄 Switched to custom_max plan", "yellow"))
                 if tokens_used > token_limit:
                     warnings.append(("🚨 TOKENS EXCEEDED LIMIT!", "red bold"))
                 if predicted_end_time < reset_time and burn_rate > 0:
-                    warnings.append(("⚠️  Tokens will run out BEFORE reset!", "red"))
+                    warnings.append(("⚠️  Tokens depleting before reset", "red"))
 
                 # Update display
-                display.update_display(
-                    {
-                        "token_pct": token_pct,
-                        "time_pct": time_pct,
+                display_data = {
+                    "token_pct": token_pct,
+                    "time_pct": time_pct,
+                    "tokens_used": tokens_used,
+                    "token_limit": token_limit,
+                    "time_remaining": format_time(minutes_to_reset),
+                    "stats": {
                         "tokens_used": tokens_used,
                         "token_limit": token_limit,
-                        "time_remaining": format_time(minutes_to_reset),
-                        "stats": {
-                            "tokens_used": tokens_used,
-                            "token_limit": token_limit,
-                            "tokens_left": tokens_left,
-                            "burn_rate": burn_rate,
-                            "predicted_end": predicted_end_str,
-                            "reset_time": reset_time_str,
-                            "cost_usd": cost_usd,
-                        },
-                        "warnings": warnings,
-                        "status_message": "Smooth sailing...",
-                    }
-                )
+                        "tokens_left": tokens_left,
+                        "burn_rate": burn_rate,
+                        "predicted_end": predicted_end_str,
+                        "reset_time": reset_time_str,
+                        "cost_usd": cost_usd,
+                    },
+                    "warnings": warnings,
+                    "status_message": "Smooth sailing...",
+                }
+
+                # Use the Group display instead of Layout
+                live.update(display.create_display_group(display_data))
 
                 time.sleep(args.refresh)
 

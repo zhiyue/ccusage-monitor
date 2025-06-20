@@ -1,4 +1,4 @@
-"""Rich-based display module for beautiful terminal UI."""
+"""Rich-based display module for beautiful terminal UI using Group layout."""
 
 from datetime import datetime
 from typing import List, Tuple, TypedDict
@@ -6,7 +6,6 @@ from typing import List, Tuple, TypedDict
 from rich import box
 from rich.align import Align
 from rich.console import Console, Group
-from rich.layout import Layout
 from rich.panel import Panel
 from rich.progress import BarColumn, Progress, TextColumn
 from rich.table import Table
@@ -43,19 +42,7 @@ class RichDisplay:
 
     def __init__(self):
         self.console: Console = Console()
-        self.layout: Layout = Layout()
         self._trend_data: List[float] = []
-        self._setup_layout()
-
-    def _setup_layout(self):
-        """Setup the layout structure."""
-        self.layout.split_column(
-            Layout(name="header", size=5),
-            Layout(name="progress", size=8),
-            Layout(name="stats", size=10),
-            Layout(name="warnings", size=7),  # Increased size for proper display
-            Layout(name="status", size=3),  # More space for status bar
-        )
 
     def create_header(self) -> Panel:
         """Create the header panel with subtle animation."""
@@ -248,7 +235,7 @@ class RichDisplay:
             title=title,
             title_align="center",
             padding=(0, 1),  # Reduced padding
-            height=7,  # Fixed height to match layout
+            height=5,  # Fixed height
             expand=True,  # Expand to full width
         )
 
@@ -273,61 +260,6 @@ class RichDisplay:
             height=3,
         )
 
-    def create_mini_chart(self, data_points: List[float], width: int = 20) -> Text:
-        """Create a simple mini chart using unicode characters."""
-        if not data_points or len(data_points) < 2:
-            return Text("📊 No data", style="dim")
-
-        # Normalize data to 0-8 range for unicode blocks
-        max_val = max(data_points)
-        min_val = min(data_points)
-
-        if max_val == min_val:
-            # All values are the same
-            chart_text = Text()
-            chart_text.append("▄" * width, style="cyan")
-            return chart_text
-
-        # Unicode block characters for different heights
-        blocks = [" ", "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
-
-        chart_text = Text()
-
-        # Sample data points to fit the width
-        if len(data_points) > width:
-            # Take evenly spaced samples
-            step = len(data_points) / width
-            sampled_points = [data_points[int(i * step)] for i in range(width)]
-        else:
-            # Pad with the last value or repeat
-            sampled_points = data_points + [data_points[-1]] * (width - len(data_points))
-
-        for point in sampled_points:
-            # Normalize to 0-8 range
-            normalized = (point - min_val) / (max_val - min_val) * 8
-            block_index = min(8, int(normalized))
-
-            # Color based on value
-            if normalized > 6:
-                style = "red"
-            elif normalized > 4:
-                style = "yellow"
-            else:
-                style = "green"
-
-            chart_text.append(blocks[block_index], style=style)
-
-        return chart_text
-
-    def update_trend_data(self, hourly_usage: List[float]):
-        """Update trend data for mini charts."""
-        self._trend_data = hourly_usage[-24:]  # Keep last 24 hours
-
-    def display(self, data: DisplayData):
-        """Display the complete interface."""
-        self.update_display(data)
-        # Note: console.clear() removed - Live handles screen updates
-
     def create_display_group(self, data: DisplayData) -> Group:
         """Create a group of all display elements."""
         return Group(
@@ -338,26 +270,19 @@ class RichDisplay:
             self.create_status_bar(datetime.now().strftime("%H:%M:%S"), data["status_message"]),
         )
 
+    def update_trend_data(self, hourly_usage: List[float]):
+        """Update trend data for mini charts."""
+        self._trend_data = hourly_usage[-24:]  # Keep last 24 hours
+
+    def display(self, data: DisplayData):
+        """Display the complete interface."""
+        # This method is kept for compatibility but not used with Live display
+        pass
+
     def update_display(self, data: DisplayData):
         """Update the entire display with new data."""
-        # Update header
-        self.layout["header"].update(self.create_header())
-
-        # Update progress
-        self.layout["progress"].update(
-            self.create_progress_panel(data["token_pct"], data["time_pct"], data["time_remaining"])
-        )
-
-        # Update stats
-        self.layout["stats"].update(self.create_stats_panel(data["stats"]))
-
-        # Update warnings
-        self.layout["warnings"].update(self.create_warnings_panel(data["warnings"]))
-
-        # Update status
-        self.layout["status"].update(
-            self.create_status_bar(datetime.now().strftime("%H:%M:%S"), data["status_message"])
-        )
+        # This method is kept for compatibility but not used with Live display
+        pass
 
 
 def create_rich_display() -> RichDisplay:
