@@ -1,10 +1,10 @@
-"""Optimized display module with buffered output."""
+"""Consolidated display module with optimized terminal UI functions."""
 
 import sys
 from io import StringIO
-from typing import cast
+from typing import Union, cast
 
-from ccusage_monitor.cache import cache
+from ccusage_monitor.core.cache import cache
 
 
 class OutputBuffer:
@@ -96,7 +96,9 @@ def create_token_progress_bar(percentage: float, width: int = 50) -> str:
     return result
 
 
-def create_time_progress_bar(elapsed_minutes: float, total_minutes: float, width: int = 50) -> str:
+def create_time_progress_bar(
+    elapsed_minutes: Union[int, float], total_minutes: Union[int, float], width: int = 50
+) -> str:
     """Create time progress bar with caching."""
     percentage = 0 if total_minutes <= 0 else min(100, (elapsed_minutes / total_minutes) * 100)
 
@@ -118,7 +120,7 @@ def create_time_progress_bar(elapsed_minutes: float, total_minutes: float, width
     return result
 
 
-def format_time(minutes: float) -> str:
+def format_time(minutes: Union[int, float]) -> str:
     """Format time with caching."""
     # Round to nearest minute for better caching
     rounded_minutes = round(minutes)

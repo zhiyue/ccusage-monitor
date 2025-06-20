@@ -1,16 +1,17 @@
-"""Optimized calculations module with better algorithms."""
+"""Consolidated calculations module with optimized algorithms."""
 
 from datetime import datetime, timedelta
 from typing import List, Optional, cast
 
 import pytz
 
-from ccusage_monitor.cache import cache
+from ccusage_monitor.core.cache import cache
+from ccusage_monitor.core.config import TOKEN_LIMITS
 from ccusage_monitor.protocols import CcusageBlock
 
 
 def calculate_hourly_burn_rate(blocks: List[CcusageBlock], current_time: datetime) -> float:
-    """Optimized burn rate calculation with early termination."""
+    """Optimized burn rate calculation with early termination and caching."""
     if not blocks:
         return 0
 
@@ -69,7 +70,7 @@ def calculate_hourly_burn_rate(blocks: List[CcusageBlock], current_time: datetim
             total_tokens += session_tokens * (hour_duration / total_session_duration)
 
     # Convert to tokens per minute
-    result = total_tokens / 60 if total_tokens > 0 else 0.0  # Direct division by 3600
+    result = total_tokens / 60 if total_tokens > 0 else 0.0
     cache.set(cache_key, result)
     return result
 
@@ -108,7 +109,7 @@ def get_next_reset_time(
     current_hour = target_time.hour
     current_minute = target_time.minute
 
-    # Binary search for next reset hour (since reset_hours is sorted)
+    # Find next reset hour
     next_reset_hour = None
     for hour in reset_hours:
         if current_hour < hour or (current_hour == hour and current_minute == 0):
@@ -134,6 +135,27 @@ def get_next_reset_time(
 
     cache.set(cache_key, next_reset.isoformat())
     return next_reset
+
+
+def get_token_limit(plan: str, blocks: Optional[List[CcusageBlock]] = None) -> int:
+    """Get token limit for plan type or detect from highest block."""
+    if plan == "custom_max" and blocks:
+        # Find the highest token count across all blocks
+        max_tokens = 0
+        for block in blocks:
+            tokens = block.get("totalTokens", 0)
+            if tokens > max_tokens:
+                max_tokens = tokens
+        
+        # Return highest known limit that accommodates this usage
+        if max_tokens > 35000:
+            return TOKEN_LIMITS["max20"]
+        elif max_tokens > 7000:
+            return TOKEN_LIMITS["max5"]
+        else:
+            return TOKEN_LIMITS["pro"]
+    
+    return TOKEN_LIMITS.get(plan, TOKEN_LIMITS["pro"])
 
 
 # Pre-defined velocity indicators for O(1) lookup

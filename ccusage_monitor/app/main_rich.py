@@ -1,6 +1,5 @@
 """Main module using Rich for beautiful terminal UI."""
 
-import argparse
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -9,35 +8,9 @@ from typing import List, Tuple
 import pytz
 from rich.live import Live
 
-from ccusage_monitor import calculations, data
-from ccusage_monitor.display_rich import create_rich_display
+from ccusage_monitor.core import calculations, data
 from ccusage_monitor.protocols import CLIArgs
-
-
-def parse_args():
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description="Claude Token Monitor - Real-time token usage monitoring")
-    parser.add_argument(
-        "--plan",
-        type=str,
-        default="pro",
-        choices=["pro", "max5", "max20", "custom_max"],
-        help='Claude plan type (default: pro). Use "custom_max" to auto-detect',
-    )
-    parser.add_argument("--reset-hour", type=int, help="Change the reset hour (0-23) for daily limits")
-    parser.add_argument(
-        "--timezone",
-        type=str,
-        default="Europe/Warsaw",
-        help="Timezone for reset times (default: Europe/Warsaw)",
-    )
-    parser.add_argument(
-        "--refresh",
-        type=int,
-        default=3,
-        help="Refresh interval in seconds (default: 3)",
-    )
-    return parser.parse_args()
+from ccusage_monitor.ui.rich_display import create_rich_display
 
 
 def format_time(minutes: float) -> str:
@@ -217,10 +190,10 @@ def main_with_args(args: CLIArgs):
 
 def main() -> None:
     """Main entry point when called directly."""
-    # This part is complex because of the argument disparity.
-    # We will rely on main.py to parse args and call this.
-    # For standalone execution, it might require a custom setup.
-    print("This module is not intended to be run directly. Please use the main entry point.")
+    from ccusage_monitor.core.config import parse_args
+    
+    args = parse_args()
+    main_with_args(args)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-"""Optimized data module with caching and async support."""
+"""Consolidated data module with optimized ccusage interaction and caching."""
 
 import asyncio
 import json
@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from typing import List, Optional, cast
 
-from ccusage_monitor.cache import cache
+from ccusage_monitor.core.cache import cache
 from ccusage_monitor.protocols import CcusageBlock, CcusageData
 
 

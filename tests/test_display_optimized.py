@@ -6,7 +6,7 @@ import sys
 import time
 import unittest
 from io import StringIO
-from typing import Optional, List
+from typing import Optional
 from unittest.mock import Mock, patch
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
