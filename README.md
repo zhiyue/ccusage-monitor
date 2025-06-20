@@ -1,8 +1,17 @@
 # 🎯 Claude Code Usage Monitor
 
 [![PyPI version](https://badge.fury.io/py/ccusage-monitor.svg)](https://pypi.org/project/ccusage-monitor/)
-[![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://python.org)
+[![Python Version](https://img.shields.io/pypi/pyversions/ccusage-monitor)](https://pypi.org/project/ccusage-monitor/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Tests](https://github.com/zhiyue/ccusage-monitor/actions/workflows/test.yml/badge.svg)](https://github.com/zhiyue/ccusage-monitor/actions/workflows/test.yml)
+[![Publish](https://github.com/zhiyue/ccusage-monitor/actions/workflows/publish.yml/badge.svg)](https://github.com/zhiyue/ccusage-monitor/actions/workflows/publish.yml)
+[![codecov](https://codecov.io/gh/zhiyue/ccusage-monitor/branch/main/graph/badge.svg)](https://codecov.io/gh/zhiyue/ccusage-monitor)
+[![Downloads](https://img.shields.io/pypi/dm/ccusage-monitor)](https://pypi.org/project/ccusage-monitor/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
+[![GitHub stars](https://img.shields.io/github/stars/zhiyue/ccusage-monitor?style=social)](https://github.com/zhiyue/ccusage-monitor/stargazers)
 
 Real-time terminal monitoring tool for Claude AI token usage. Track consumption, burn rate, and predict when tokens will run out.
 

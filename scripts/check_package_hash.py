@@ -61,7 +61,7 @@ def check_files_exist(dist_dir, package_name, version, test_pypi=False):
     duplicate_files = []
     
     for file_path in dist_path.glob("*"):
-        if file_path.is_file():
+        if file_path.is_file() and file_path.suffix in ['.whl', '.tar.gz', '.zip']:
             filename = file_path.name
             local_hash = calculate_blake2_256(file_path)
             
@@ -103,7 +103,7 @@ def main():
         dist_path = Path(args.dist_dir)
         print(f"\nFiles to upload:")
         for file_path in dist_path.glob("*"):
-            if file_path.is_file():
+            if file_path.is_file() and file_path.suffix in ['.whl', '.tar.gz', '.zip']:
                 print(f"  - {file_path.name}")
         
         sys.exit(0)

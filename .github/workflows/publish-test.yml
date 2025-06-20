@@ -40,15 +40,18 @@ jobs:
       
     - name: Check if package already exists
       id: check_exists
-      continue-on-error: true
       run: |
         echo "🔍 Checking if package already exists on Test PyPI..."
-        python scripts/check_package_hash.py \
+        if python scripts/check_package_hash.py \
           --version ${{ steps.get_version.outputs.VERSION }} \
-          --test-pypi
+          --test-pypi; then
+          echo "SHOULD_PUBLISH=true" >> $GITHUB_OUTPUT
+        else
+          echo "SHOULD_PUBLISH=false" >> $GITHUB_OUTPUT
+        fi
         
     - name: Publish to Test PyPI
-      if: steps.check_exists.outcome == 'success'
+      if: steps.check_exists.outputs.SHOULD_PUBLISH == 'true'
       env:
         UV_PUBLISH_USERNAME: __token__
         UV_PUBLISH_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
@@ -59,7 +62,7 @@ jobs:
         echo "🔗 View at: https://test.pypi.org/project/ccusage-monitor/${{ steps.get_version.outputs.VERSION }}/"
         
     - name: Skip publish (already exists)
-      if: steps.check_exists.outcome == 'failure'
+      if: steps.check_exists.outputs.SHOULD_PUBLISH == 'false'
       run: |
         echo "⏭️ Skipping publish - package with same content already exists on Test PyPI"
         echo "💡 To publish a new version, make sure to:"

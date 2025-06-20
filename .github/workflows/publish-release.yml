@@ -56,15 +56,18 @@ jobs:
       
     - name: Check if package already exists
       id: check_exists
-      continue-on-error: true
       run: |
         echo "🔍 Checking if package already exists on PyPI..."
-        python scripts/check_package_hash.py \
-          --version ${{ steps.get_version.outputs.VERSION }}
+        if python scripts/check_package_hash.py \
+          --version ${{ steps.get_version.outputs.VERSION }}; then
+          echo "SHOULD_PUBLISH=true" >> $GITHUB_OUTPUT
+        else
+          echo "SHOULD_PUBLISH=false" >> $GITHUB_OUTPUT
+        fi
         
     - name: Publish to PyPI
       if: |
-        steps.check_exists.outcome == 'success' &&
+        steps.check_exists.outputs.SHOULD_PUBLISH == 'true' &&
         (!inputs.dry_run || inputs.dry_run == false)
       env:
         UV_PUBLISH_USERNAME: __token__
@@ -80,7 +83,7 @@ jobs:
         echo "   uvx ccusage-monitor"
         
     - name: Skip publish (already exists)
-      if: steps.check_exists.outcome == 'failure'
+      if: steps.check_exists.outputs.SHOULD_PUBLISH == 'false'
       run: |
         echo "⏭️ Skipping publish - package with same content already exists on PyPI"
         echo "💡 This usually means the release was already published"
