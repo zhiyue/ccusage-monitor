@@ -36,7 +36,12 @@ ccusage-monitor/
 - **All Python code MUST pass ruff checks and formatting** - run before committing:
   - Use `ruff check --fix . && ruff format .` to fix issues and format code
   - This ensures consistent style across all Python files
-  - Configure ruff settings in pyproject.toml
+  - Ruff automatically uses settings from `pyproject.toml`:
+    - Line length: 120 characters
+    - Target Python version: 3.8+
+    - Enabled rules: E, F, I, N, UP, B, C4, SIM
+    - Quote style: double quotes
+    - Indent style: spaces
 - Use type hints where beneficial
 - Keep functions focused and testable
 - Prefer descriptive variable names
@@ -70,6 +75,38 @@ ccusage-monitor/
   - Fix all type errors reported by mypy
   - Add appropriate type hints to functions and variables
   - Only use `# type: ignore` when absolutely necessary with clear explanation
+
+## Tool Configuration
+
+All development tools are configured in `pyproject.toml`:
+
+### Ruff Configuration
+- **Line length**: 120 characters (longer than Black's 88 for better readability)
+- **Target Python**: 3.8+ (ensures compatibility)
+- **Lint rules**:
+  - E: pycodestyle errors
+  - F: pyflakes (undefined names, imports)
+  - I: isort (import sorting)
+  - N: pep8-naming (naming conventions)
+  - UP: pyupgrade (Python version-specific updates)
+  - B: flake8-bugbear (bug detection)
+  - C4: flake8-comprehensions (list/dict comprehension)
+  - SIM: flake8-simplify (code simplification)
+- **Format settings**:
+  - Double quotes for strings
+  - Space indentation
+  - Auto line endings (LF on Unix, CRLF on Windows)
+
+### MyPy Configuration
+- **Python version**: 3.8
+- **Strict mode**: warn on Any returns, unused configs
+- **Import handling**: ignore missing imports for external packages
+
+### Other Tools
+- **Black**: Line length 88 (not actively used, ruff format is preferred)
+- **isort**: Black-compatible profile (handled by ruff)
+- **pytest**: Verbose output, short tracebacks
+- **coverage**: 98% precision, show missing lines
 
 ## Dependencies
 
@@ -113,7 +150,11 @@ ccusage-monitor/
 ### Linting and Formatting with Ruff
 ```bash
 # Complete code quality check (recommended)
+# Ruff automatically finds and uses pyproject.toml in the project root
 ruff check --fix . && ruff format .
+
+# Explicitly specify config file (optional, same result)
+ruff check --config pyproject.toml --fix . && ruff format --config pyproject.toml .
 
 # Individual commands:
 # Check for linting issues
@@ -128,6 +169,9 @@ ruff format .
 # Check specific file
 ruff check ccusage_monitor.py
 ruff format ccusage_monitor.py
+
+# Show current configuration (merged from pyproject.toml)
+ruff check --show-settings
 
 # Show all available rules
 ruff rule --all
