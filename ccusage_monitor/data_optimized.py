@@ -4,7 +4,7 @@ import asyncio
 import json
 import shutil
 import subprocess
-from typing import Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 from ccusage_monitor.cache import _cache
 
@@ -35,7 +35,7 @@ def run_ccusage() -> Optional[Dict]:
     # Check cache first (5 second TTL for ccusage data)
     cached_data = _cache.get("ccusage_data", ttl=5)
     if cached_data is not None:
-        return cached_data
+        return cast(Optional[Dict[Any, Any]], cached_data)
 
     try:
         # Use PIPE constants for better performance
@@ -50,7 +50,7 @@ def run_ccusage() -> Optional[Dict]:
 
         data = json.loads(result.stdout)
         _cache.set("ccusage_data", data)
-        return data
+        return cast(Optional[Dict[Any, Any]], data)
 
     except subprocess.TimeoutExpired:
         print("❌ ccusage command timed out")
@@ -78,7 +78,7 @@ async def run_ccusage_async() -> Optional[Dict]:
     # Check cache first
     cached_data = _cache.get("ccusage_data", ttl=5)
     if cached_data is not None:
-        return cached_data
+        return cast(Optional[Dict[Any, Any]], cached_data)
 
     try:
         proc = await asyncio.create_subprocess_exec(
@@ -99,7 +99,7 @@ async def run_ccusage_async() -> Optional[Dict]:
 
         data = json.loads(stdout.decode())
         _cache.set("ccusage_data", data)
-        return data
+        return cast(Optional[Dict[Any, Any]], data)
 
     except asyncio.TimeoutError:
         print("❌ ccusage command timed out")
@@ -116,7 +116,7 @@ def get_token_limit(plan: str, blocks=None) -> int:
         cache_key = f"token_limit_{plan}"
         cached = _cache.get(cache_key)
         if cached is not None:
-            return cached
+            return int(cached)
 
         limits = {"pro": 7000, "max5": 35000, "max20": 140000}
         limit = limits.get(plan, 7000)

@@ -3,18 +3,18 @@
 Tests for performance optimization modules - Following TDD principles
 """
 
+import os
+import sys
 import time
 import unittest
-from datetime import datetime, timezone, timedelta
-from unittest.mock import patch, MagicMock
-import sys
-import os
+from datetime import datetime, timedelta, timezone
+from unittest.mock import MagicMock, patch
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from ccusage_monitor import calculations_optimized, data_optimized, display_optimized
 from ccusage_monitor.cache import Cache, _cache
-from ccusage_monitor import data_optimized, calculations_optimized, display_optimized
 
 
 class TestCache(unittest.TestCase):

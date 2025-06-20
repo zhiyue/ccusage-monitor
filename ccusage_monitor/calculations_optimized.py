@@ -17,7 +17,7 @@ def calculate_hourly_burn_rate(blocks: List[Dict], current_time: datetime) -> fl
     cache_key = f"burn_rate_{current_time.minute}"
     cached = _cache.get(cache_key, ttl=30)  # Cache for 30 seconds
     if cached is not None:
-        return cached
+        return float(cached)
 
     one_hour_ago = current_time - timedelta(hours=1)
     total_tokens = 0
@@ -87,7 +87,7 @@ def get_next_reset_time(
     cache_key = f"reset_time_{current_time.hour}_{timezone_str}_{custom_reset_hour}"
     cached = _cache.get(cache_key, ttl=300)  # Cache for 5 minutes
     if cached is not None:
-        return cached
+        return datetime.fromisoformat(str(cached))
 
     # Cache timezone object
     tz_cache_key = f"timezone_{timezone_str}"
@@ -139,7 +139,7 @@ def get_next_reset_time(
     if current_time.tzinfo is not None and current_time.tzinfo != target_tz:
         next_reset = next_reset.astimezone(current_time.tzinfo)
 
-    _cache.set(cache_key, next_reset)
+    _cache.set(cache_key, next_reset.isoformat())
     return next_reset
 
 

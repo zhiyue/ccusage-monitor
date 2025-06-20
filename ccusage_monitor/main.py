@@ -15,7 +15,11 @@ try:
 
     OPTIMIZED = True
 except ImportError:
-    from ccusage_monitor import calculations, data, display
+    from ccusage_monitor import (
+        calculations,  # type: ignore[no-redef]
+        data,  # type: ignore[no-redef]
+        display,  # type: ignore[no-redef]
+    )
 
     OPTIMIZED = False
 

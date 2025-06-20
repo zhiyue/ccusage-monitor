@@ -64,6 +64,10 @@ ccusage-monitor/
 - **ALWAYS run `ruff check --fix` before committing** to auto-fix code style issues
   - If ruff reports issues that can't be auto-fixed, manually fix them
   - Ensure all Python files pass ruff checks before committing
+- **ALWAYS run `mypy` before committing** to ensure type safety
+  - Fix all type errors reported by mypy
+  - Add appropriate type hints to functions and variables
+  - Only use `# type: ignore` when absolutely necessary with clear explanation
 
 ## Dependencies
 
@@ -153,29 +157,41 @@ Before committing any code changes:
    ruff check .
    ```
 
-2. **Run tests to ensure nothing is broken**:
+2. **Run mypy for type checking**:
+   ```bash
+   # Check all Python files
+   mypy .
+   
+   # Check specific module
+   mypy ccusage_monitor/
+   ```
+   - Fix any type errors reported by mypy
+   - Add type hints where needed
+   - Use `# type: ignore` only when absolutely necessary with explanation
+
+3. **Run tests to ensure nothing is broken**:
    ```bash
    pytest
    ```
 
-3. **Check test coverage** (optional but recommended):
+4. **Check test coverage** (optional but recommended):
    ```bash
    pytest --cov=ccusage_monitor
    ```
 
-4. **Stage only the files you modified**:
+5. **Stage only the files you modified**:
    ```bash
    git add <specific-file>
    # Never use git add . or git add -A
    ```
 
-5. **Review your changes**:
+6. **Review your changes**:
    ```bash
    git status
    git diff --cached
    ```
 
-6. **Commit with a clear message**:
+7. **Commit with a clear message**:
    ```bash
    git commit -m "type: description"
    ```

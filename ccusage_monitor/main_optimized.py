@@ -4,7 +4,7 @@ import argparse
 import sys
 import time
 from datetime import datetime, timedelta, timezone
-from typing import Dict
+from typing import Any, Dict, cast
 
 import pytz
 
@@ -83,7 +83,7 @@ class MonitorState:
             self.last_data_hash = data_hash
             self.last_active_block = active_block
 
-        return changed
+        return bool(changed)
 
 
 def format_display_values(
@@ -93,14 +93,14 @@ def format_display_values(
     reset_time: datetime,
     predicted_end_time: datetime,
     timezone_str: str,
-) -> Dict[str, str]:
+) -> Dict[str, Any]:
     """Pre-format all display values with caching."""
     cache_key = (
         f"display_{tokens_used}_{token_limit}_{int(burn_rate)}_{reset_time.hour}"
     )
     cached = _cache.get(cache_key, ttl=10)
     if cached is not None:
-        return cached
+        return cast(Dict[str, Any], cached)
 
     # Calculate derived values
     usage_percentage = (tokens_used / token_limit) * 100 if token_limit > 0 else 0

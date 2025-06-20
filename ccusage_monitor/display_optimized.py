@@ -71,7 +71,7 @@ def create_token_progress_bar(percentage: float, width: int = 50) -> str:
 
     cached = _cache.get(cache_key)
     if cached is not None:
-        return cached
+        return str(cached)
 
     filled = int(width * percentage / 100)
     green_bar = "█" * filled
@@ -97,7 +97,7 @@ def create_time_progress_bar(
 
     cached = _cache.get(cache_key)
     if cached is not None:
-        return cached
+        return str(cached)
 
     filled = int(width * percentage / 100)
     blue_bar = "█" * filled
@@ -116,7 +116,7 @@ def format_time(minutes: float) -> str:
 
     cached = _cache.get(f"time_format_{rounded_minutes}")
     if cached is not None:
-        return cached
+        return str(cached)
 
     if rounded_minutes < 60:
         result = f"{rounded_minutes}m"
