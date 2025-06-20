@@ -1,7 +1,7 @@
 """Rich-based display module for beautiful terminal UI."""
 
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, List, Tuple
 
 from rich import box
 from rich.console import Console
@@ -55,7 +55,7 @@ class RichDisplay:
             TextColumn("[progress.percentage]{task.percentage:>3.1f}%"),
             expand=False,
         )
-        token_progress.add_task("tokens", total=100, completed=token_pct)
+        token_progress.add_task("tokens", total=100, completed=int(token_pct))
 
         # Time progress bar
         time_progress = Progress(
@@ -64,7 +64,7 @@ class RichDisplay:
             TextColumn(f"{time_remaining}"),
             expand=False,
         )
-        time_progress.add_task("time", total=100, completed=time_pct)
+        time_progress.add_task("time", total=100, completed=int(time_pct))
 
         # Combine in a table
         table = Table(show_header=False, box=None, padding=(0, 0))
@@ -104,7 +104,7 @@ class RichDisplay:
 
         return Panel(table, box=box.ROUNDED, border_style="dim")
 
-    def create_warnings_panel(self, warnings: list) -> Panel:
+    def create_warnings_panel(self, warnings: List[Tuple[str, str]]) -> Panel:
         """Create warnings panel if needed."""
         if not warnings:
             return Panel("", box=box.ROUNDED, height=1, border_style="dim")

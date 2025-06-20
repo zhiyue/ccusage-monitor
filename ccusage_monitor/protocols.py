@@ -37,6 +37,8 @@ class DisplayValues(TypedDict):
 class DisplayProtocol(Protocol):
     """A protocol for display modules to ensure type safety."""
 
+    def print_header(self) -> None: ...
+
     def create_token_progress_bar(self, percentage: float, width: int = 50) -> str: ...
 
     def create_time_progress_bar(

@@ -3,7 +3,7 @@
 import json
 import shutil
 import subprocess
-from typing import List, Optional, cast
+from typing import Any, List, Optional, cast
 
 from .protocols import CcusageBlock, CcusageData
 
@@ -48,8 +48,11 @@ def run_ccusage() -> Optional[CcusageData]:
         return None
 
 
-def get_token_limit(plan: str, blocks: Optional[List[CcusageBlock]] = None) -> int:
+def get_token_limit(plan: Any, blocks: Optional[List[CcusageBlock]] = None) -> int:
     """Get token limit based on plan type."""
+    if not isinstance(plan, str):
+        plan = "pro"  # default to pro for non-string plans
+
     if plan == "custom_max" and blocks:
         # Find the highest token count from all previous blocks
         max_tokens = 0

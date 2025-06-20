@@ -176,7 +176,7 @@ def main() -> None:
                 predicted_end_time = reset_time
 
             # Build output based on whether we're using optimized display
-            if OPTIMIZED and hasattr(display, '_buffer'):
+            if OPTIMIZED and hasattr(display, "_buffer"):
                 # Use the buffer from display_optimized
                 display.print_header()
             else:
@@ -188,8 +188,10 @@ def main() -> None:
                 output.append("")
 
             # Token Usage section
-            if OPTIMIZED and hasattr(display, 'writeln'):
-                display.writeln(f"📊 {white}Token Usage:{reset}    {display.create_token_progress_bar(usage_percentage)}")
+            if OPTIMIZED and hasattr(display, "writeln"):
+                display.writeln(
+                    f"📊 {white}Token Usage:{reset}    {display.create_token_progress_bar(usage_percentage)}"
+                )
                 display.writeln()
             else:
                 output.append(f"📊 {white}Token Usage:{reset}    {display.create_token_progress_bar(usage_percentage)}")
@@ -198,25 +200,33 @@ def main() -> None:
             # Time to Reset section - calculate progress based on time since last reset
             # Estimate time since last reset (max 5 hours = 300 minutes)
             time_since_reset = max(0, 300 - minutes_to_reset)
-            if OPTIMIZED and hasattr(display, 'writeln'):
-                display.writeln(f"⏳ {white}Time to Reset:{reset}  {display.create_time_progress_bar(time_since_reset, 300)}")
+            if OPTIMIZED and hasattr(display, "writeln"):
+                display.writeln(
+                    f"⏳ {white}Time to Reset:{reset}  {display.create_time_progress_bar(time_since_reset, 300)}"
+                )
                 display.writeln()
             else:
-                output.append(f"⏳ {white}Time to Reset:{reset}  {display.create_time_progress_bar(time_since_reset, 300)}")
+                output.append(
+                    f"⏳ {white}Time to Reset:{reset}  {display.create_time_progress_bar(time_since_reset, 300)}"
+                )
                 output.append("")
 
             # Detailed stats
-            if OPTIMIZED and hasattr(display, 'writeln'):
+            if OPTIMIZED and hasattr(display, "writeln"):
                 display.writeln(
                     f"🎯 {white}Tokens:{reset}         {white}{tokens_used:,}{reset} / {gray}~{token_limit:,}{reset} ({cyan}{tokens_left:,} left{reset})"
                 )
-                display.writeln(f"🔥 {white}Burn Rate:{reset}      {yellow}{burn_rate:.1f}{reset} {gray}tokens/min{reset}")
+                display.writeln(
+                    f"🔥 {white}Burn Rate:{reset}      {yellow}{burn_rate:.1f}{reset} {gray}tokens/min{reset}"
+                )
                 display.writeln()
             else:
                 output.append(
                     f"🎯 {white}Tokens:{reset}         {white}{tokens_used:,}{reset} / {gray}~{token_limit:,}{reset} ({cyan}{tokens_left:,} left{reset})"
                 )
-                output.append(f"🔥 {white}Burn Rate:{reset}      {yellow}{burn_rate:.1f}{reset} {gray}tokens/min{reset}")
+                output.append(
+                    f"🔥 {white}Burn Rate:{reset}      {yellow}{burn_rate:.1f}{reset} {gray}tokens/min{reset}"
+                )
                 output.append("")
 
             # Predictions - convert to configured timezone for display
@@ -229,7 +239,7 @@ def main() -> None:
 
             predicted_end_str = predicted_end_local.strftime("%H:%M")
             reset_time_str = reset_time_local.strftime("%H:%M")
-            if OPTIMIZED and hasattr(display, 'writeln'):
+            if OPTIMIZED and hasattr(display, "writeln"):
                 display.writeln(f"🏁 {white}Predicted End:{reset} {predicted_end_str}")
                 display.writeln(f"🔄 {white}Token Reset:{reset}   {reset_time_str}")
                 display.writeln()
@@ -248,15 +258,19 @@ def main() -> None:
 
             # Show notifications
             if show_switch_notification:
-                if OPTIMIZED and hasattr(display, 'writeln'):
-                    display.writeln(f"🔄 {yellow}Tokens exceeded Pro limit - switched to custom_max ({token_limit:,}){reset}")
+                if OPTIMIZED and hasattr(display, "writeln"):
+                    display.writeln(
+                        f"🔄 {yellow}Tokens exceeded Pro limit - switched to custom_max ({token_limit:,}){reset}"
+                    )
                     display.writeln()
                 else:
-                    output.append(f"🔄 {yellow}Tokens exceeded Pro limit - switched to custom_max ({token_limit:,}){reset}")
+                    output.append(
+                        f"🔄 {yellow}Tokens exceeded Pro limit - switched to custom_max ({token_limit:,}){reset}"
+                    )
                     output.append("")
 
             if show_exceed_notification:
-                if OPTIMIZED and hasattr(display, 'writeln'):
+                if OPTIMIZED and hasattr(display, "writeln"):
                     display.writeln(f"🚨 {red}TOKENS EXCEEDED MAX LIMIT! ({tokens_used:,} > {token_limit:,}){reset}")
                     display.writeln()
                 else:
@@ -265,7 +279,7 @@ def main() -> None:
 
             # Warning if tokens will run out before reset
             if predicted_end_time < reset_time:
-                if OPTIMIZED and hasattr(display, 'writeln'):
+                if OPTIMIZED and hasattr(display, "writeln"):
                     display.writeln(f"⚠️  {red}Tokens will run out BEFORE reset!{reset}")
                     display.writeln()
                 else:
@@ -275,7 +289,7 @@ def main() -> None:
             # Status line
             current_time_str = datetime.now().strftime("%H:%M:%S")
             perf_indicator = f" | {green}⚡ OPTIMIZED{reset}" if OPTIMIZED and args.performance else ""
-            if OPTIMIZED and hasattr(display, 'writeln'):
+            if OPTIMIZED and hasattr(display, "writeln"):
                 display.writeln(
                     f"⏰ {gray}{current_time_str}{reset} 📝 {cyan}Smooth sailing...{reset}{perf_indicator} | {gray}Ctrl+C to exit{reset} 🟨"
                 )
@@ -285,7 +299,7 @@ def main() -> None:
                 )
 
             # Output handling
-            if OPTIMIZED and hasattr(display, 'flush_buffer'):
+            if OPTIMIZED and hasattr(display, "flush_buffer"):
                 # Flush buffer (only updates if content changed)
                 display.flush_buffer()
             else:

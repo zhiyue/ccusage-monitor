@@ -5,13 +5,14 @@ import os
 import sys
 import time
 from datetime import datetime, timezone
+from typing import Any, Dict
 
 import psutil
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from ccusage_monitor import calculations, calculations_optimized, data, data_optimized
-from ccusage_monitor.cache import _cache
+from ccusage_monitor.cache import cache
 
 
 def generate_test_data(num_blocks=100):
@@ -40,8 +41,10 @@ def generate_test_data(num_blocks=100):
     return {"blocks": blocks}
 
 
-def benchmark_burn_rate(blocks, current_time, iterations=1000):
+def benchmark_burn_rate(blocks, current_time, iterations=1000) -> Dict[str, Any]:
     """Benchmark burn rate calculations."""
+    result_orig = None
+    result_opt = None
     # Original
     start = time.perf_counter()
     for _ in range(iterations):
@@ -49,7 +52,7 @@ def benchmark_burn_rate(blocks, current_time, iterations=1000):
     time_orig = time.perf_counter() - start
 
     # Clear cache for fair comparison
-    _cache.clear()
+    cache.clear()
 
     # Optimized
     start = time.perf_counter()
@@ -64,8 +67,10 @@ def benchmark_burn_rate(blocks, current_time, iterations=1000):
     }
 
 
-def benchmark_reset_time(current_time, iterations=1000):
+def benchmark_reset_time(current_time, iterations=1000) -> Dict[str, Any]:
     """Benchmark reset time calculations."""
+    result_orig = None
+    result_opt = None
     # Original
     start = time.perf_counter()
     for _ in range(iterations):
@@ -73,7 +78,7 @@ def benchmark_reset_time(current_time, iterations=1000):
     time_orig = time.perf_counter() - start
 
     # Clear cache
-    _cache.clear()
+    cache.clear()
 
     # Optimized
     start = time.perf_counter()
@@ -88,8 +93,10 @@ def benchmark_reset_time(current_time, iterations=1000):
     }
 
 
-def benchmark_token_limit(blocks, iterations=1000):
+def benchmark_token_limit(blocks, iterations=1000) -> Dict[str, Any]:
     """Benchmark token limit calculations."""
+    result_orig = None
+    result_opt = None
     # Original
     start = time.perf_counter()
     for _ in range(iterations):
@@ -97,7 +104,7 @@ def benchmark_token_limit(blocks, iterations=1000):
     time_orig = time.perf_counter() - start
 
     # Clear cache
-    _cache.clear()
+    cache.clear()
 
     # Optimized
     start = time.perf_counter()
@@ -157,7 +164,7 @@ def main():
 
     # 4. Cache effectiveness
     print("\n4. Cache Effectiveness Test:")
-    _cache.clear()
+    cache.clear()
 
     # First call (no cache)
     start = time.perf_counter()
