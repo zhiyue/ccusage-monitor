@@ -26,6 +26,7 @@ Real-time terminal monitoring tool for Claude AI token usage. Track consumption,
 - 🤖 **Auto-detection** - Automatically detects your token limits
 - 📋 **Multiple plans** - Supports Pro, Max5, Max20
 - ⚠️ **Smart warnings** - Alerts before token depletion
+- 🎨 **Rich UI mode** - Beautiful, flicker-free terminal interface (NEW!)
 
 ## 🚀 Quick Start
 
@@ -61,6 +62,9 @@ ccusage-monitor --timezone US/Eastern
 
 # Custom reset hour
 ccusage-monitor --reset-hour 9
+
+# Beautiful Rich UI mode (recommended!)
+ccusage-monitor --rich
 ```
 
 ## 📚 Documentation
