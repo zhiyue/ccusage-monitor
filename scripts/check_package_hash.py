@@ -27,7 +27,12 @@ def get_package_files_info(package_name, version, test_pypi=False):
         base_url = f"https://pypi.org/pypi/{package_name}/{version}/json"
     
     try:
-        with urllib.request.urlopen(base_url) as response:
+        # Add headers to avoid caching
+        req = urllib.request.Request(base_url, headers={
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+        })
+        with urllib.request.urlopen(req) as response:
             data = json.loads(response.read().decode())
             urls = data.get("urls", [])
             

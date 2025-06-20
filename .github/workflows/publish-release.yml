@@ -74,7 +74,7 @@ jobs:
         UV_PUBLISH_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
       run: |
         echo "📤 Publishing to PyPI..."
-        uv publish
+        uv publish --check-url https://pypi.org/simple/
         echo "✅ Successfully published version ${{ steps.get_version.outputs.VERSION }} to PyPI"
         echo "🔗 View at: https://pypi.org/project/ccusage-monitor/${{ steps.get_version.outputs.VERSION }}/"
         echo ""
