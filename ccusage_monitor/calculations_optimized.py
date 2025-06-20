@@ -45,9 +45,7 @@ def calculate_hourly_burn_rate(blocks: List[Dict], current_time: datetime) -> fl
         else:
             actual_end_str = block.get("actualEndTime")
             if actual_end_str:
-                session_actual_end = datetime.fromisoformat(
-                    actual_end_str.replace("Z", "+00:00")
-                )
+                session_actual_end = datetime.fromisoformat(actual_end_str.replace("Z", "+00:00"))
             else:
                 session_actual_end = current_time
 
@@ -65,9 +63,7 @@ def calculate_hourly_burn_rate(blocks: List[Dict], current_time: datetime) -> fl
         # Optimized calculation
         total_session_duration = (session_actual_end - start_time).total_seconds()
         if total_session_duration > 0:
-            hour_duration = (
-                session_end_in_hour - session_start_in_hour
-            ).total_seconds()
+            hour_duration = (session_end_in_hour - session_start_in_hour).total_seconds()
             session_tokens = block.get("totalTokens", 0)
             total_tokens += session_tokens * (hour_duration / total_session_duration)
 
@@ -106,9 +102,7 @@ def get_next_reset_time(
         target_time = target_tz.localize(current_time)
 
     # Determine reset hours
-    reset_hours = (
-        [custom_reset_hour] if custom_reset_hour is not None else [4, 9, 14, 18, 23]
-    )
+    reset_hours = [custom_reset_hour] if custom_reset_hour is not None else [4, 9, 14, 18, 23]
 
     current_hour = target_time.hour
     current_minute = target_time.minute
@@ -129,9 +123,7 @@ def get_next_reset_time(
 
     # Create reset datetime
     next_reset = target_tz.localize(
-        datetime.combine(
-            next_reset_date, datetime.min.time().replace(hour=next_reset_hour)
-        ),
+        datetime.combine(next_reset_date, datetime.min.time().replace(hour=next_reset_hour)),
         is_dst=None,
     )
 

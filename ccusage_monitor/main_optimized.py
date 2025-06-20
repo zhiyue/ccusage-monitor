@@ -16,9 +16,7 @@ from ccusage_monitor.cache import _cache
 
 def parse_args():
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        description="Claude Token Monitor - Real-time token usage monitoring"
-    )
+    parser = argparse.ArgumentParser(description="Claude Token Monitor - Real-time token usage monitoring")
     parser.add_argument(
         "--plan",
         type=str,
@@ -26,9 +24,7 @@ def parse_args():
         choices=["pro", "max5", "max20", "custom_max"],
         help='Claude plan type (default: pro). Use "custom_max" to auto-detect from highest previous block',
     )
-    parser.add_argument(
-        "--reset-hour", type=int, help="Change the reset hour (0-23) for daily limits"
-    )
+    parser.add_argument("--reset-hour", type=int, help="Change the reset hour (0-23) for daily limits")
     parser.add_argument(
         "--timezone",
         type=str,
@@ -66,9 +62,7 @@ class MonitorState:
             return False
 
         # Create a simple hash of relevant data
-        active_block = next(
-            (b for b in data.get("blocks", []) if b.get("isActive")), None
-        )
+        active_block = next((b for b in data.get("blocks", []) if b.get("isActive")), None)
         if not active_block:
             return False
 
@@ -95,9 +89,7 @@ def format_display_values(
     timezone_str: str,
 ) -> Dict[str, Any]:
     """Pre-format all display values with caching."""
-    cache_key = (
-        f"display_{tokens_used}_{token_limit}_{int(burn_rate)}_{reset_time.hour}"
-    )
+    cache_key = f"display_{tokens_used}_{token_limit}_{int(burn_rate)}_{reset_time.hour}"
     cached = _cache.get(cache_key, ttl=10)
     if cached is not None:
         return cast(Dict[str, Any], cached)
@@ -200,30 +192,22 @@ def main():
             # Time calculations (cached)
             start_time_str = active_block.get("startTime")
             if start_time_str:
-                start_time = datetime.fromisoformat(
-                    start_time_str.replace("Z", "+00:00")
-                )
+                start_time = datetime.fromisoformat(start_time_str.replace("Z", "+00:00"))
                 current_time = datetime.now(start_time.tzinfo)
             else:
                 current_time = datetime.now(timezone.utc)
 
             # Calculate burn rate (cached for 30 seconds)
-            burn_rate = calculations.calculate_hourly_burn_rate(
-                ccusage_data["blocks"], current_time
-            )
+            burn_rate = calculations.calculate_hourly_burn_rate(ccusage_data["blocks"], current_time)
 
             # Reset time (cached for 5 minutes)
-            reset_time = calculations.get_next_reset_time(
-                current_time, args.reset_hour, args.timezone
-            )
+            reset_time = calculations.get_next_reset_time(current_time, args.reset_hour, args.timezone)
             minutes_to_reset = (reset_time - current_time).total_seconds() / 60
 
             # Predicted end time
             if burn_rate > 0 and tokens_used < state.token_limit:
                 minutes_to_depletion = (state.token_limit - tokens_used) / burn_rate
-                predicted_end_time = current_time + timedelta(
-                    minutes=minutes_to_depletion
-                )
+                predicted_end_time = current_time + timedelta(minutes=minutes_to_depletion)
             else:
                 predicted_end_time = reset_time
 
@@ -242,16 +226,14 @@ def main():
 
             # Token usage
             display._buffer.writeln(
-                f"📊 {white}Token Usage:{reset}    "
-                f"{display.create_token_progress_bar(values['usage_percentage'])}"
+                f"📊 {white}Token Usage:{reset}    {display.create_token_progress_bar(values['usage_percentage'])}"
             )
             display._buffer.writeln()
 
             # Time to reset
             time_since_reset = max(0, 300 - minutes_to_reset)
             display._buffer.writeln(
-                f"⏳ {white}Time to Reset:{reset}  "
-                f"{display.create_time_progress_bar(time_since_reset, 300)}"
+                f"⏳ {white}Time to Reset:{reset}  {display.create_time_progress_bar(time_since_reset, 300)}"
             )
             display._buffer.writeln()
 
@@ -263,25 +245,19 @@ def main():
                 f"({cyan}{values['tokens_left_fmt']} left{reset})"
             )
             display._buffer.writeln(
-                f"🔥 {white}Burn Rate:{reset}      "
-                f"{yellow}{values['burn_rate_fmt']}{reset} {gray}tokens/min{reset}"
+                f"🔥 {white}Burn Rate:{reset}      {yellow}{values['burn_rate_fmt']}{reset} {gray}tokens/min{reset}"
             )
             display._buffer.writeln()
 
             # Predictions
-            display._buffer.writeln(
-                f"🏁 {white}Predicted End:{reset} {values['predicted_end_str']}"
-            )
-            display._buffer.writeln(
-                f"🔄 {white}Token Reset:{reset}   {values['reset_time_str']}"
-            )
+            display._buffer.writeln(f"🏁 {white}Predicted End:{reset} {values['predicted_end_str']}")
+            display._buffer.writeln(f"🔄 {white}Token Reset:{reset}   {values['reset_time_str']}")
             display._buffer.writeln()
 
             # Notifications (only when needed)
             if tokens_used > 7000 and args.plan == "pro" and state.token_limit > 7000:
                 display._buffer.writeln(
-                    f"🔄 {yellow}Tokens exceeded Pro limit - switched to custom_max "
-                    f"({state.token_limit:,}){reset}"
+                    f"🔄 {yellow}Tokens exceeded Pro limit - switched to custom_max ({state.token_limit:,}){reset}"
                 )
                 display._buffer.writeln()
 
@@ -293,16 +269,13 @@ def main():
                 display._buffer.writeln()
 
             if predicted_end_time < reset_time:
-                display._buffer.writeln(
-                    f"⚠️  {red}Tokens will run out BEFORE reset!{reset}"
-                )
+                display._buffer.writeln(f"⚠️  {red}Tokens will run out BEFORE reset!{reset}")
                 display._buffer.writeln()
 
             # Status line
             current_time_str = datetime.now().strftime("%H:%M:%S")
             display._buffer.writeln(
-                f"⏰ {gray}{current_time_str}{reset} 📝 {cyan}Smooth sailing...{reset} | "
-                f"{gray}Ctrl+C to exit{reset} 🟨"
+                f"⏰ {gray}{current_time_str}{reset} 📝 {cyan}Smooth sailing...{reset} | {gray}Ctrl+C to exit{reset} 🟨"
             )
 
             # Flush buffer (only updates if changed)

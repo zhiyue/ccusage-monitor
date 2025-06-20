@@ -54,9 +54,7 @@ def benchmark_burn_rate(blocks, current_time, iterations=1000):
     # Optimized
     start = time.perf_counter()
     for _ in range(iterations):
-        result_opt = calculations_optimized.calculate_hourly_burn_rate(
-            blocks, current_time
-        )
+        result_opt = calculations_optimized.calculate_hourly_burn_rate(blocks, current_time)
     time_opt = time.perf_counter() - start
 
     return {
@@ -171,17 +169,13 @@ def main():
     calculations_optimized.calculate_hourly_burn_rate(blocks, current_time)
     cached_call_time = time.perf_counter() - start
 
-    print(f"   First call:  {first_call_time*1000:.3f}ms")
-    print(f"   Cached call: {cached_call_time*1000:.3f}ms")
-    print(f"   Cache speedup: {first_call_time/cached_call_time:.0f}x")
+    print(f"   First call:  {first_call_time * 1000:.3f}ms")
+    print(f"   Cached call: {cached_call_time * 1000:.3f}ms")
+    print(f"   Cache speedup: {first_call_time / cached_call_time:.0f}x")
 
     # Overall summary
     print("\n📈 Overall Performance Summary:")
-    avg_speedup = (
-        burn_rate_results["speedup"]
-        + reset_time_results["speedup"]
-        + token_limit_results["speedup"]
-    ) / 3
+    avg_speedup = (burn_rate_results["speedup"] + reset_time_results["speedup"] + token_limit_results["speedup"]) / 3
     print(f"   Average speedup: {avg_speedup:.2f}x")
     print(f"   Memory usage: {measure_memory_usage():.1f} MB")
 

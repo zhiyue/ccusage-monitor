@@ -56,9 +56,7 @@ def run_ccusage() -> Optional[Dict]:
         print("❌ ccusage command timed out")
         return None
     except FileNotFoundError:
-        print(
-            "❌ ccusage command not found. Please install it with: npm install -g ccusage"
-        )
+        print("❌ ccusage command not found. Please install it with: npm install -g ccusage")
         return None
     except subprocess.CalledProcessError as e:
         print(f"❌ Error running ccusage: {e}")

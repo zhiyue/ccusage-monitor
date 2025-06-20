@@ -14,7 +14,7 @@ def check_version_exists(package_name, version, test_pypi=False):
         base_url = f"https://test.pypi.org/pypi/{package_name}/json"
     else:
         base_url = f"https://pypi.org/pypi/{package_name}/json"
-    
+
     try:
         with urllib.request.urlopen(base_url) as response:
             data = json.loads(response.read().decode())
@@ -36,7 +36,7 @@ def get_latest_version(package_name, test_pypi=False):
         base_url = f"https://test.pypi.org/pypi/{package_name}/json"
     else:
         base_url = f"https://pypi.org/pypi/{package_name}/json"
-    
+
     try:
         with urllib.request.urlopen(base_url) as response:
             data = json.loads(response.read().decode())
@@ -53,14 +53,14 @@ def main():
     parser.add_argument("--package", default="ccusage-monitor", help="Package name")
     parser.add_argument("--version", required=True, help="Version to check")
     parser.add_argument("--test-pypi", action="store_true", help="Check Test PyPI")
-    
+
     args = parser.parse_args()
-    
+
     exists = check_version_exists(args.package, args.version, args.test_pypi)
     latest = get_latest_version(args.package, args.test_pypi)
-    
+
     pypi_name = "Test PyPI" if args.test_pypi else "PyPI"
-    
+
     if exists:
         print(f"Version {args.version} already exists on {pypi_name}")
         sys.exit(1)

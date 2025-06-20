@@ -75,8 +75,9 @@ class TestMainFunction(unittest.TestCase):
     @patch("ccusage_monitor.display.show_cursor")
     @patch("builtins.print")
     @patch("time.sleep")
-    def test_main_no_active_session(self, mock_sleep, mock_print, mock_show_cursor, 
-                                   mock_hide_cursor, mock_clear_screen, mock_run, mock_check):
+    def test_main_no_active_session(
+        self, mock_sleep, mock_print, mock_show_cursor, mock_hide_cursor, mock_clear_screen, mock_run, mock_check
+    ):
         """Test main function when no active session is found."""
         mock_check.return_value = True
         mock_run.return_value = {"blocks": [{"isActive": False}]}  # No active blocks

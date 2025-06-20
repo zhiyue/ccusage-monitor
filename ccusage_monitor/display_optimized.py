@@ -54,10 +54,7 @@ def print_header() -> None:
         reset = "\033[0m"
         sparkles = f"{cyan}✦ ✧ ✦ ✧ {reset}"
 
-        cached = (
-            f"{sparkles}{cyan}CLAUDE TOKEN MONITOR{reset} {sparkles}\n"
-            f"{blue}{'=' * 60}{reset}\n\n"
-        )
+        cached = f"{sparkles}{cyan}CLAUDE TOKEN MONITOR{reset} {sparkles}\n{blue}{'=' * 60}{reset}\n\n"
         _cache.set("header_output", cached)
 
     _buffer.write(cached)
@@ -83,13 +80,9 @@ def create_token_progress_bar(percentage: float, width: int = 50) -> str:
     return result
 
 
-def create_time_progress_bar(
-    elapsed_minutes: float, total_minutes: float, width: int = 50
-) -> str:
+def create_time_progress_bar(elapsed_minutes: float, total_minutes: float, width: int = 50) -> str:
     """Create time progress bar with caching."""
-    percentage = (
-        0 if total_minutes <= 0 else min(100, (elapsed_minutes / total_minutes) * 100)
-    )
+    percentage = 0 if total_minutes <= 0 else min(100, (elapsed_minutes / total_minutes) * 100)
 
     # Round values for better caching
     rounded_elapsed = round(elapsed_minutes)
