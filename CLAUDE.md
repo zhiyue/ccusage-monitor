@@ -64,6 +64,14 @@ ccusage-monitor/
 
 ## Dependencies
 
+### Virtual Environment Setup
+- **ALWAYS activate virtual environment before pip install**:
+  ```bash
+  pyenv activate cc  # or your virtual environment name
+  ```
+- Never install packages globally
+- This ensures clean, isolated development environment
+
 ### Runtime
 - Python 3.8+
 - pytz (timezone handling)
@@ -74,6 +82,7 @@ ccusage-monitor/
 - ruff (linting and code quality - primary tool)
 - black (code formatting)
 - mypy (type checking)
+- types-pytz (type stubs for pytz)
 - GitHub Actions (CI/CD)
 
 ## Key Functions
