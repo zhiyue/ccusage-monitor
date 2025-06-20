@@ -7,21 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.3] - 2025-06-20
+
 ### Added
 - GitHub Actions workflow for automated PyPI publishing
 - Support for installation via pip and uvx
 - Comprehensive test suite with pytest
 - Development dependencies in pyproject.toml
 - This CHANGELOG file
+- Makefile for development tasks
+- Pre-commit configuration
+- EditorConfig for code style consistency
+- Detailed documentation in docs/ directory
 
 ### Changed
 - Updated Python requirement from 3.6+ to 3.8+
-- Improved README documentation for PyPI installation
+- Simplified README to be more concise
+- Moved detailed documentation to separate files
 - Enhanced CONTRIBUTING guide with modern Python practices
 - Updated project URLs to new GitHub repository
+- Moved screenshot from doc/ to docs/
 
 ### Fixed
 - Various documentation inconsistencies
+- GitHub Actions workflow version conflicts
 
 ## [0.0.2] - 2025-06-20
 
@@ -49,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial implementation by Maciek (maciek@roboblog.eu)
 - PyPI packaging and improvements by zhiyue (cszhiyue@gmail.com)
 
-[Unreleased]: https://github.com/zhiyue/ccusage-monitor/compare/v0.0.2...HEAD
+[Unreleased]: https://github.com/zhiyue/ccusage-monitor/compare/v0.0.3...HEAD
+[0.0.3]: https://github.com/zhiyue/ccusage-monitor/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/zhiyue/ccusage-monitor/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/zhiyue/ccusage-monitor/releases/tag/v0.0.1
