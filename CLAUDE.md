@@ -68,6 +68,12 @@ ccusage-monitor/
 - Maintain >45% coverage (current: 48%)
 - Test core functions thoroughly
 - Mock external dependencies
+- **CRITICAL: Always update tests when modifying code**:
+  - If you rename functions, variables, or modules → update test imports and references
+  - If you change function signatures → update test calls
+  - If you refactor code structure → ensure tests still pass
+  - Run `pytest` after ANY code changes to verify nothing is broken
+  - Example: When renaming `_cache` to `cache`, update `from cache import _cache` to `from cache import cache` in tests
 
 ### Git Workflow
 - Write clear commit messages
