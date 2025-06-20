@@ -49,12 +49,13 @@ class RichDisplay:
 
     def _setup_layout(self):
         """Setup the layout structure."""
+        # Total: 3 + 5 + 7 + 4 + 2 = 21 lines
         self.layout.split_column(
-            Layout(name="header", size=5),
-            Layout(name="progress", size=8),
-            Layout(name="stats", size=10),
-            Layout(name="warnings", size=7),  # Increased size for proper display
-            Layout(name="status", size=3),  # More space for status bar
+            Layout(name="header", size=3),
+            Layout(name="progress", size=5),
+            Layout(name="stats", size=7),
+            Layout(name="warnings", size=4),
+            Layout(name="status", size=2),
         )
 
     def create_header(self) -> Panel:
@@ -86,6 +87,7 @@ class RichDisplay:
             title_align="left",
             subtitle="[dim]Real-time Usage Tracking[/]",
             subtitle_align="right",
+            height=3,  # Fixed height to match layout
         )
 
     def create_progress_panel(self, token_pct: float, time_pct: float, time_remaining: str) -> Panel:
@@ -141,7 +143,8 @@ class RichDisplay:
             border_style="bright_blue",
             title="[bold bright_yellow]📈 Progress Tracking[/]",
             title_align="center",
-            padding=(0, 2),  # Add horizontal padding
+            padding=0,  # No padding to save space
+            height=5,  # Fixed height to match layout
         )
 
     def create_stats_panel(self, stats: StatsData) -> Panel:
@@ -210,36 +213,34 @@ class RichDisplay:
             border_style="bright_green",
             title="[bold bright_yellow]📊 Token Statistics[/]",
             title_align="center",
-            padding=(0, 2),  # Add horizontal padding
+            padding=0,  # No padding to save space
+            height=7,  # Fixed height to match layout
         )
 
     def create_warnings_panel(self, warnings: List[Tuple[str, str]]) -> Panel:
         """Create warnings panel with fixed height."""
-        warning_lines: List[Text] = []
-
+        # Always create exactly 2 lines of content
+        lines: List[str] = []
+        
         if not warnings:
-            warning_lines.append(Text("✅ All systems running smoothly", style="bold bright_green"))
+            lines.append("✅ All systems running smoothly")
+            lines.append("")  # Empty second line
             border_style = "bright_green"
             title = "[bold bright_green]🟢 System Status[/]"
         else:
-            for warning in warnings[:3]:  # Limit to 3 warnings to prevent overflow
-                line = Text()
-                line.append("⚠️  ", style="bold red")
-                line.append(warning[0], style=warning[1])
-                warning_lines.append(line)
+            # Take only first 2 warnings
+            for warning in warnings[:2]:
+                lines.append(f"⚠️  {warning[0]}")
+            
+            # Pad to exactly 2 lines
+            while len(lines) < 2:
+                lines.append("")
+                
             border_style = "bold red"
             title = "[bold red]🚨 Warnings[/]"
 
-        # Pad with empty lines to maintain consistent height
-        while len(warning_lines) < 3:
-            warning_lines.append(Text(""))
-
-        # Join all lines with newlines
-        content = Text()
-        for i, line in enumerate(warning_lines):
-            if i > 0:
-                content.append("\n")
-            content.append(line)
+        # Create fixed content with exact line count
+        content = "\n".join(lines)
 
         return Panel(
             content,
@@ -247,9 +248,9 @@ class RichDisplay:
             border_style=border_style,
             title=title,
             title_align="center",
-            padding=(0, 1),  # Reduced padding
-            height=7,  # Fixed height to match layout
-            expand=True,  # Expand to full width
+            padding=(0, 1),  # Minimal padding
+            height=4,  # Fixed height
+            expand=True,
         )
 
     def create_status_bar(self, time_str: str, message: str = "Smooth sailing...") -> Panel:
@@ -270,7 +271,7 @@ class RichDisplay:
             Align.center(status),
             box=box.SIMPLE,
             border_style="dim white",
-            height=3,
+            height=2,  # Fixed height to match layout
         )
 
     def create_mini_chart(self, data_points: List[float], width: int = 20) -> Text:
