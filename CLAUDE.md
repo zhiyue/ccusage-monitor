@@ -33,8 +33,9 @@ ccusage-monitor/
 
 ### Python Style
 - Follow PEP 8
-- **All Python code MUST pass ruff checks** - run `ruff check` before committing
-  - Use `ruff check --fix` to auto-fix issues when safe
+- **All Python code MUST pass ruff checks and formatting** - run before committing:
+  - Use `ruff check --fix . && ruff format .` to fix issues and format code
+  - This ensures consistent style across all Python files
   - Configure ruff settings in pyproject.toml
 - Use type hints where beneficial
 - Keep functions focused and testable
@@ -61,9 +62,10 @@ ccusage-monitor/
 - Always explicitly add each file with `git add <filename>`
 - Review changes with `git status` before staging
 - Always test before committing
-- **ALWAYS run `ruff check --fix` before committing** to auto-fix code style issues
+- **ALWAYS run `ruff check --fix . && ruff format .` before committing** to ensure code quality:
+  - `ruff check --fix` auto-fixes linting issues (imports, unused variables, etc.)
+  - `ruff format` ensures consistent code formatting
   - If ruff reports issues that can't be auto-fixed, manually fix them
-  - Ensure all Python files pass ruff checks before committing
 - **ALWAYS run `mypy` before committing** to ensure type safety
   - Fix all type errors reported by mypy
   - Add appropriate type hints to functions and variables
@@ -108,16 +110,24 @@ ccusage-monitor/
 
 ## Quality Check Commands
 
-### Linting with Ruff
+### Linting and Formatting with Ruff
 ```bash
-# Check all Python files
+# Complete code quality check (recommended)
+ruff check --fix . && ruff format .
+
+# Individual commands:
+# Check for linting issues
 ruff check .
 
-# Auto-fix safe issues
+# Auto-fix linting issues
 ruff check --fix .
+
+# Format code
+ruff format .
 
 # Check specific file
 ruff check ccusage_monitor.py
+ruff format ccusage_monitor.py
 
 # Show all available rules
 ruff rule --all
@@ -148,13 +158,10 @@ black --check .
 
 Before committing any code changes:
 
-1. **Run ruff to check and fix code style**:
+1. **Run ruff to check and format code**:
    ```bash
-   # Auto-fix all fixable issues
-   ruff check --fix .
-   
-   # Check if any issues remain
-   ruff check .
+   # Complete code quality check (lint + format)
+   ruff check --fix . && ruff format .
    ```
 
 2. **Run mypy for type checking**:
