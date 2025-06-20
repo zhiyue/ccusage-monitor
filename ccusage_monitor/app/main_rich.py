@@ -66,6 +66,7 @@ def main_with_args(args: CLIArgs):
                                 "burn_rate": 0,
                                 "predicted_end": "N/A",
                                 "reset_time": "N/A",
+                                "cost_usd": 0.0,
                             },
                             "warnings": [("Failed to get usage data", "red")],
                             "status_message": "Waiting for data...",
@@ -96,6 +97,7 @@ def main_with_args(args: CLIArgs):
                                 "burn_rate": 0,
                                 "predicted_end": "N/A",
                                 "reset_time": "N/A",
+                                "cost_usd": 0.0,
                             },
                             "warnings": [("No active session found", "yellow")],
                             "status_message": "Waiting for session...",
@@ -106,6 +108,7 @@ def main_with_args(args: CLIArgs):
 
                 # Extract data
                 tokens_used = active_block.get("totalTokens", 0)
+                cost_usd = active_block.get("costUSD", 0.0)
 
                 # Auto-switch logic
                 if tokens_used > token_limit and args.plan == "pro":
@@ -175,6 +178,7 @@ def main_with_args(args: CLIArgs):
                             "burn_rate": burn_rate,
                             "predicted_end": predicted_end_str,
                             "reset_time": reset_time_str,
+                            "cost_usd": cost_usd,
                         },
                         "warnings": warnings,
                         "status_message": "Smooth sailing...",

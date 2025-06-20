@@ -22,6 +22,7 @@ class StatsData(TypedDict):
     burn_rate: float
     predicted_end: str
     reset_time: str
+    cost_usd: float
 
 
 class DisplayData(TypedDict):
@@ -43,6 +44,7 @@ class RichDisplay:
     def __init__(self):
         self.console: Console = Console()
         self.layout: Layout = Layout()
+        self._trend_data: List[float] = []
         self._setup_layout()
 
     def _setup_layout(self):
@@ -50,17 +52,36 @@ class RichDisplay:
         self.layout.split_column(
             Layout(name="header", size=5),
             Layout(name="progress", size=8),
-            Layout(name="stats", size=8),
+            Layout(name="stats", size=10),
             Layout(name="warnings", size=4),
             Layout(name="status", size=2),
         )
 
     def create_header(self) -> Panel:
-        """Create the header panel."""
+        """Create the header panel with animated effects."""
+        import time
+
+        # Create pulsing effect based on current second
+        pulse_phase = int(time.time() % 4)
+
         header_text = Text()
-        header_text.append("✨ ⭐ ✨ ", style="bold bright_cyan")
-        header_text.append("CLAUDE TOKEN MONITOR", style="bold bright_white on dark_blue")
-        header_text.append(" ✨ ⭐ ✨", style="bold bright_cyan")
+
+        if pulse_phase == 0:
+            header_text.append("✨ ⭐ ✨ ", style="bold bright_cyan")
+            header_text.append("CLAUDE TOKEN MONITOR", style="bold bright_white on blue")
+            header_text.append(" ✨ ⭐ ✨", style="bold bright_cyan")
+        elif pulse_phase == 1:
+            header_text.append("⭐ ✨ ⭐ ", style="bold cyan")
+            header_text.append("CLAUDE TOKEN MONITOR", style="bold white on bright_blue")
+            header_text.append(" ⭐ ✨ ⭐", style="bold cyan")
+        elif pulse_phase == 2:
+            header_text.append("✨ ⭐ ✨ ", style="bold bright_cyan")
+            header_text.append("CLAUDE TOKEN MONITOR", style="bold bright_white on blue")
+            header_text.append(" ✨ ⭐ ✨", style="bold bright_cyan")
+        else:
+            header_text.append("⭐ ✨ ⭐ ", style="bold cyan")
+            header_text.append("CLAUDE TOKEN MONITOR", style="bold white on dark_blue")
+            header_text.append(" ⭐ ✨ ⭐", style="bold cyan")
 
         centered_header = Align.center(header_text)
 
@@ -172,15 +193,34 @@ class RichDisplay:
         reset_text = Text(stats["reset_time"], style="bold bright_yellow")
         table.add_row("🔄 Token Reset:", reset_text)
 
+        table.add_row("", "")  # Empty row for spacing
+
+        # Session cost
+        cost_text = Text()
+        if stats["cost_usd"] > 10:
+            cost_style = "bold red"
+            cost_emoji = "💳"
+        elif stats["cost_usd"] > 1:
+            cost_style = "bold yellow"
+            cost_emoji = "💸"
+        else:
+            cost_style = "bold green"
+            cost_emoji = "💰"
+            
+        cost_text.append(f"${stats['cost_usd']:.2f}", style=cost_style)
+        cost_text.append(" this 5hr window", style="dim white")
+        table.add_row(f"{cost_emoji} Cost:", cost_text)
+
         centered_stats = Align.center(table)
 
         return Panel(
             centered_stats,
             box=box.ROUNDED,
             border_style="bright_green",
-            title="[bold bright_yellow]📊 Statistics[/]",
+            title="[bold bright_yellow]📊 Token Statistics[/]",
             title_align="center",
         )
+
 
     def create_warnings_panel(self, warnings: List[Tuple[str, str]]) -> Panel:
         """Create warnings panel if needed."""
@@ -228,6 +268,56 @@ class RichDisplay:
 
         return Align.center(status)
 
+    def create_mini_chart(self, data_points: List[float], width: int = 20) -> Text:
+        """Create a simple mini chart using unicode characters."""
+        if not data_points or len(data_points) < 2:
+            return Text("📊 No data", style="dim")
+
+        # Normalize data to 0-8 range for unicode blocks
+        max_val = max(data_points)
+        min_val = min(data_points)
+
+        if max_val == min_val:
+            # All values are the same
+            chart_text = Text()
+            chart_text.append("▄" * width, style="cyan")
+            return chart_text
+
+        # Unicode block characters for different heights
+        blocks = [" ", "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
+
+        chart_text = Text()
+
+        # Sample data points to fit the width
+        if len(data_points) > width:
+            # Take evenly spaced samples
+            step = len(data_points) / width
+            sampled_points = [data_points[int(i * step)] for i in range(width)]
+        else:
+            # Pad with the last value or repeat
+            sampled_points = data_points + [data_points[-1]] * (width - len(data_points))
+
+        for point in sampled_points:
+            # Normalize to 0-8 range
+            normalized = (point - min_val) / (max_val - min_val) * 8
+            block_index = min(8, int(normalized))
+
+            # Color based on value
+            if normalized > 6:
+                style = "red"
+            elif normalized > 4:
+                style = "yellow"
+            else:
+                style = "green"
+
+            chart_text.append(blocks[block_index], style=style)
+
+        return chart_text
+
+    def update_trend_data(self, hourly_usage: List[float]):
+        """Update trend data for mini charts."""
+        self._trend_data = hourly_usage[-24:]  # Keep last 24 hours
+
     def display(self, data: DisplayData):
         """Display the complete interface."""
         self.update_display(data)
@@ -246,6 +336,7 @@ class RichDisplay:
 
         # Update stats
         self.layout["stats"].update(self.create_stats_panel(data["stats"]))
+
 
         # Update warnings
         self.layout["warnings"].update(self.create_warnings_panel(data["warnings"]))
