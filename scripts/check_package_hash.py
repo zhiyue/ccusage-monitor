@@ -65,11 +65,15 @@ def check_files_exist(dist_dir, package_name, version, test_pypi=False):
             filename = file_path.name
             local_hash = calculate_blake2_256(file_path)
             
-            if filename in pypi_files and pypi_files[filename] == local_hash:
-                duplicate_files.append({
-                    'filename': filename,
-                    'hash': local_hash
-                })
+            if filename in pypi_files:
+                remote_hash = pypi_files[filename]
+                if remote_hash == local_hash:
+                    duplicate_files.append({
+                        'filename': filename,
+                        'hash': local_hash
+                    })
+                else:
+                    print(f"  ℹ️  {filename}: different hash (local: {local_hash[:16]}..., remote: {remote_hash[:16]}...)")
     
     return len(duplicate_files) > 0, duplicate_files
 
