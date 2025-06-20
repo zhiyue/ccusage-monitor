@@ -26,9 +26,7 @@ except ImportError:
 
 def parse_args():
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        description="Claude Token Monitor - Real-time token usage monitoring"
-    )
+    parser = argparse.ArgumentParser(description="Claude Token Monitor - Real-time token usage monitoring")
     parser.add_argument(
         "--plan",
         type=str,
@@ -36,9 +34,7 @@ def parse_args():
         choices=["pro", "max5", "max20", "custom_max"],
         help='Claude plan type (default: pro). Use "custom_max" to auto-detect from highest previous block',
     )
-    parser.add_argument(
-        "--reset-hour", type=int, help="Change the reset hour (0-23) for daily limits"
-    )
+    parser.add_argument("--reset-hour", type=int, help="Change the reset hour (0-23) for daily limits")
     parser.add_argument(
         "--timezone",
         type=str,
@@ -107,30 +103,22 @@ def main():
                 if new_limit > token_limit:
                     token_limit = new_limit
 
-            usage_percentage = (
-                (tokens_used / token_limit) * 100 if token_limit > 0 else 0
-            )
+            usage_percentage = (tokens_used / token_limit) * 100 if token_limit > 0 else 0
             tokens_left = token_limit - tokens_used
 
             # Time calculations
             start_time_str = active_block.get("startTime")
             if start_time_str:
-                start_time = datetime.fromisoformat(
-                    start_time_str.replace("Z", "+00:00")
-                )
+                start_time = datetime.fromisoformat(start_time_str.replace("Z", "+00:00"))
                 current_time = datetime.now(start_time.tzinfo)
             else:
                 current_time = datetime.now(timezone.utc)
 
             # Calculate burn rate from ALL sessions in the last hour
-            burn_rate = calculations.calculate_hourly_burn_rate(
-                ccusage_data["blocks"], current_time
-            )
+            burn_rate = calculations.calculate_hourly_burn_rate(ccusage_data["blocks"], current_time)
 
             # Reset time calculation - use fixed schedule or custom hour with timezone
-            reset_time = calculations.get_next_reset_time(
-                current_time, args.reset_hour, args.timezone
-            )
+            reset_time = calculations.get_next_reset_time(current_time, args.reset_hour, args.timezone)
 
             # Calculate time to reset
             time_to_reset = reset_time - current_time
@@ -139,9 +127,7 @@ def main():
             # Predicted end calculation - when tokens will run out based on burn rate
             if burn_rate > 0 and tokens_left > 0:
                 minutes_to_depletion = tokens_left / burn_rate
-                predicted_end_time = current_time + timedelta(
-                    minutes=minutes_to_depletion
-                )
+                predicted_end_time = current_time + timedelta(minutes=minutes_to_depletion)
             else:
                 # If no burn rate or tokens already depleted, use reset time
                 predicted_end_time = reset_time
@@ -159,26 +145,20 @@ def main():
             display.print_header()
 
             # Token Usage section
-            print(
-                f"📊 {white}Token Usage:{reset}    {display.create_token_progress_bar(usage_percentage)}"
-            )
+            print(f"📊 {white}Token Usage:{reset}    {display.create_token_progress_bar(usage_percentage)}")
             print()
 
             # Time to Reset section - calculate progress based on time since last reset
             # Estimate time since last reset (max 5 hours = 300 minutes)
             time_since_reset = max(0, 300 - minutes_to_reset)
-            print(
-                f"⏳ {white}Time to Reset:{reset}  {display.create_time_progress_bar(time_since_reset, 300)}"
-            )
+            print(f"⏳ {white}Time to Reset:{reset}  {display.create_time_progress_bar(time_since_reset, 300)}")
             print()
 
             # Detailed stats
             print(
                 f"🎯 {white}Tokens:{reset}         {white}{tokens_used:,}{reset} / {gray}~{token_limit:,}{reset} ({cyan}{tokens_left:,} left{reset})"
             )
-            print(
-                f"🔥 {white}Burn Rate:{reset}      {yellow}{burn_rate:.1f}{reset} {gray}tokens/min{reset}"
-            )
+            print(f"🔥 {white}Burn Rate:{reset}      {yellow}{burn_rate:.1f}{reset} {gray}tokens/min{reset}")
             print()
 
             # Predictions - convert to configured timezone for display
@@ -205,15 +185,11 @@ def main():
 
             # Show notifications
             if show_switch_notification:
-                print(
-                    f"🔄 {yellow}Tokens exceeded Pro limit - switched to custom_max ({token_limit:,}){reset}"
-                )
+                print(f"🔄 {yellow}Tokens exceeded Pro limit - switched to custom_max ({token_limit:,}){reset}")
                 print()
 
             if show_exceed_notification:
-                print(
-                    f"🚨 {red}TOKENS EXCEEDED MAX LIMIT! ({tokens_used:,} > {token_limit:,}){reset}"
-                )
+                print(f"🚨 {red}TOKENS EXCEEDED MAX LIMIT! ({tokens_used:,} > {token_limit:,}){reset}")
                 print()
 
             # Warning if tokens will run out before reset
@@ -223,11 +199,7 @@ def main():
 
             # Status line
             current_time_str = datetime.now().strftime("%H:%M:%S")
-            perf_indicator = (
-                f" | {green}⚡ OPTIMIZED{reset}"
-                if OPTIMIZED and args.performance
-                else ""
-            )
+            perf_indicator = f" | {green}⚡ OPTIMIZED{reset}" if OPTIMIZED and args.performance else ""
             print(
                 f"⏰ {gray}{current_time_str}{reset} 📝 {cyan}Smooth sailing...{reset}{perf_indicator} | {gray}Ctrl+C to exit{reset} 🟨"
             )
