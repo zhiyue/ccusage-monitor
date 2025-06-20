@@ -37,7 +37,12 @@ ccusage-monitor/
 - Keep functions focused and testable
 - Prefer descriptive variable names
 
-### Testing
+### Testing (TDD Approach)
+- **ALWAYS write tests BEFORE writing code** (Test-Driven Development)
+- Follow the TDD cycle: Red → Green → Refactor
+  1. Write a failing test first
+  2. Write minimal code to make the test pass
+  3. Refactor while keeping tests green
 - Use pytest for all tests
 - Maintain >45% coverage (current: 48%)
 - Test core functions thoroughly
@@ -92,17 +97,21 @@ pytest tests/test_ccusage_monitor.py -v
 
 ## Common Tasks
 
-### Adding New Features
-1. Write tests first (TDD approach)
-2. Implement feature in ccusage_monitor.py
-3. Update documentation if needed
-4. Run tests to ensure nothing breaks
+### Adding New Features (TDD Required)
+1. **Write failing tests FIRST** - define expected behavior
+2. Run tests to confirm they fail (Red phase)
+3. Implement minimal code in ccusage_monitor.py to pass tests (Green phase)
+4. Refactor code while keeping tests green
+5. Update documentation if needed
+6. Run all tests to ensure nothing breaks
 
-### Fixing Bugs
+### Fixing Bugs (TDD Required)
 1. Reproduce the issue
-2. Write a test that fails
-3. Fix the bug
-4. Ensure test passes
+2. **Write a test that fails** due to the bug
+3. Run test to confirm it fails (Red phase)
+4. Fix the bug with minimal changes (Green phase)
+5. Refactor if needed
+6. Ensure all tests pass
 
 ### Updating Dependencies
 1. Update requirements.txt or requirements-dev.txt
