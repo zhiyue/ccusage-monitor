@@ -6,7 +6,7 @@
 
 Real-time terminal monitoring tool for Claude AI token usage. Track consumption, burn rate, and predict when tokens will run out.
 
-![Claude Token Monitor Screenshot](doc/sc.png)
+![Claude Token Monitor Screenshot](docs/sc.png)
 
 ## ✨ Features
 
