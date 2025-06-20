@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ccusage-monitor"
-version = "1.0.0"
+version = "1.0.1"
 description = "Real-time Claude token usage monitor with beautiful terminal interface"
 readme = "README.md"
 license = {text = "MIT"}
