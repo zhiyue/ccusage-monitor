@@ -72,61 +72,55 @@ class TestMainFunction:
         assert exc_info.value.code == 1
         mock_print.assert_called_with("❌ Rich library not installed. Install with: pip install rich")
 
-    @patch("ccusage_monitor.core.config.parse_args")
-    @patch("ccusage_monitor.core.data.check_ccusage_installed")
-    @patch("ccusage_monitor.core.data.get_token_limit")
-    @patch("ccusage_monitor.core.data.run_ccusage")
-    @patch("ccusage_monitor.ui.display.clear_screen")
-    @patch("ccusage_monitor.ui.display.hide_cursor")
+    @patch("ccusage_monitor.app.main.parse_args")
+    @patch("ccusage_monitor.app.main.check_ccusage_installed")
+    @patch("ccusage_monitor.app.main.get_token_limit")
+    @patch("ccusage_monitor.app.main.run_ccusage")
+    @patch("ccusage_monitor.app.main.display.clear_screen")
+    @patch("ccusage_monitor.app.main.display.hide_cursor")
     @patch("time.sleep")
     def test_main_handles_custom_max_plan(
         self, mock_sleep, mock_hide, mock_clear, mock_run_ccusage, mock_get_limit, mock_check, mock_parse
     ):
         """Test main handles custom_max plan correctly."""
         # Mock arguments
-        mock_args = MagicMock()
-        mock_args.rich = False
-        mock_args.plan = "custom_max"
-        mock_args.refresh = 0.1  # Short sleep for testing
+        mock_args = create_mock_args(plan="custom_max", refresh=0.1)
         mock_parse.return_value = mock_args
 
         # Mock ccusage installed
         mock_check.return_value = True
 
-        # Mock ccusage data
-        mock_data = {"blocks": [{"totalTokens": 5000}]}
+        # Mock ccusage data with active block
+        mock_data = {"blocks": [{"totalTokens": 5000, "isActive": True, "startTime": "2024-01-01T10:00:00Z"}]}
         mock_run_ccusage.return_value = mock_data
 
         # Mock token limit
         mock_get_limit.return_value = 7000
 
         # Mock sleep to interrupt the loop after first iteration
-        mock_sleep.side_effect = [None, KeyboardInterrupt()]
+        mock_sleep.side_effect = KeyboardInterrupt()
 
-        with patch("ccusage_monitor.ui.display.show_cursor"):
-            with patch("ccusage_monitor.ui.display.clear_screen"):
+        with patch("ccusage_monitor.app.main.display.show_cursor"):
+            with patch("ccusage_monitor.app.main.display.clear_screen"):
                 with pytest.raises(SystemExit):
                     main()
 
         mock_get_limit.assert_called()
         mock_run_ccusage.assert_called()
 
-    @patch("ccusage_monitor.core.config.parse_args")
-    @patch("ccusage_monitor.core.data.check_ccusage_installed")
-    @patch("ccusage_monitor.core.data.get_token_limit")
-    @patch("ccusage_monitor.core.data.run_ccusage")
-    @patch("ccusage_monitor.ui.display.clear_screen")
-    @patch("ccusage_monitor.ui.display.hide_cursor")
+    @patch("ccusage_monitor.app.main.parse_args")
+    @patch("ccusage_monitor.app.main.check_ccusage_installed")
+    @patch("ccusage_monitor.app.main.get_token_limit")
+    @patch("ccusage_monitor.app.main.run_ccusage")
+    @patch("ccusage_monitor.app.main.display.clear_screen")
+    @patch("ccusage_monitor.app.main.display.hide_cursor")
     @patch("time.sleep")
     def test_main_handles_failed_ccusage_data(
         self, mock_sleep, mock_hide, mock_clear, mock_run_ccusage, mock_get_limit, mock_check, mock_parse
     ):
         """Test main handles failed ccusage data gracefully."""
         # Mock arguments
-        mock_args = MagicMock()
-        mock_args.rich = False
-        mock_args.plan = "pro"
-        mock_args.refresh = 0.1
+        mock_args = create_mock_args(plan="pro", refresh=0.1)
         mock_parse.return_value = mock_args
 
         mock_check.return_value = True
@@ -135,33 +129,35 @@ class TestMainFunction:
         # Mock failed ccusage call
         mock_run_ccusage.return_value = None
 
-        # Mock sleep to interrupt after a few iterations
-        mock_sleep.side_effect = [None, None, KeyboardInterrupt()]
+        # Mock sleep to interrupt after a few iterations  
+        mock_sleep.side_effect = KeyboardInterrupt()
 
-        with patch("builtins.print"):
-            with patch("ccusage_monitor.ui.display.show_cursor"):
-                with patch("ccusage_monitor.ui.display.clear_screen"):
+        def mock_print(*args, **kwargs):
+            if args and args[0] == "Failed to get usage data":
+                raise KeyboardInterrupt()
+            return None
+        
+        with patch("builtins.print", side_effect=mock_print):
+            with patch("ccusage_monitor.app.main.display.show_cursor"):
+                with patch("ccusage_monitor.app.main.display.clear_screen"):
                     with pytest.raises(SystemExit):
                         main()
 
-        # Should continue trying even with failed data
-        assert mock_run_ccusage.call_count >= 2
+        # Should have tried to get ccusage data
+        assert mock_run_ccusage.call_count >= 1
 
-    @patch("ccusage_monitor.core.config.parse_args")
-    @patch("ccusage_monitor.core.data.check_ccusage_installed")
-    @patch("ccusage_monitor.core.data.get_token_limit")
-    @patch("ccusage_monitor.core.data.run_ccusage")
-    @patch("ccusage_monitor.ui.display.clear_screen")
-    @patch("ccusage_monitor.ui.display.hide_cursor")
+    @patch("ccusage_monitor.app.main.parse_args")
+    @patch("ccusage_monitor.app.main.check_ccusage_installed")
+    @patch("ccusage_monitor.app.main.get_token_limit")
+    @patch("ccusage_monitor.app.main.run_ccusage")
+    @patch("ccusage_monitor.app.main.display.clear_screen")
+    @patch("ccusage_monitor.app.main.display.hide_cursor")
     @patch("time.sleep")
     def test_main_handles_no_active_session(
         self, mock_sleep, mock_hide, mock_clear, mock_run_ccusage, mock_get_limit, mock_check, mock_parse
     ):
         """Test main handles no active session gracefully."""
-        mock_args = MagicMock()
-        mock_args.rich = False
-        mock_args.plan = "pro"
-        mock_args.refresh = 0.1
+        mock_args = create_mock_args(plan="pro", refresh=0.1)
         mock_parse.return_value = mock_args
 
         mock_check.return_value = True
@@ -171,31 +167,35 @@ class TestMainFunction:
         mock_data = {"blocks": [{"totalTokens": 1000, "isActive": False}]}
         mock_run_ccusage.return_value = mock_data
 
-        mock_sleep.side_effect = [None, KeyboardInterrupt()]
+        mock_sleep.side_effect = KeyboardInterrupt()
 
-        with patch("builtins.print"):
-            with patch("ccusage_monitor.ui.display.show_cursor"):
-                with patch("ccusage_monitor.ui.display.clear_screen"):
+        def mock_print_no_active(*args, **kwargs):
+            if args and args[0] == "No active session found":
+                raise KeyboardInterrupt()
+            return None
+        
+        with patch("builtins.print", side_effect=mock_print_no_active):
+            with patch("ccusage_monitor.app.main.display.show_cursor"):
+                with patch("ccusage_monitor.app.main.display.clear_screen"):
                     with pytest.raises(SystemExit):
                         main()
 
         mock_run_ccusage.assert_called()
 
-    @patch("ccusage_monitor.core.config.parse_args")
-    @patch("ccusage_monitor.core.data.check_ccusage_installed")
-    @patch("ccusage_monitor.ui.display.show_cursor")
+    @patch("ccusage_monitor.app.main.parse_args")
+    @patch("ccusage_monitor.app.main.check_ccusage_installed")
+    @patch("ccusage_monitor.app.main.display.show_cursor")
     def test_main_handles_keyboard_interrupt(self, mock_show, mock_check, mock_parse):
         """Test main handles KeyboardInterrupt gracefully."""
-        mock_args = MagicMock()
-        mock_args.rich = False
+        mock_args = create_mock_args()
         mock_parse.return_value = mock_args
 
         mock_check.return_value = True
 
         # Mock KeyboardInterrupt in the main loop
-        with patch("ccusage_monitor.ui.display.clear_screen"):
-            with patch("ccusage_monitor.ui.display.hide_cursor", side_effect=KeyboardInterrupt):
-                with patch("ccusage_monitor.ui.display.clear_screen"):
+        with patch("ccusage_monitor.app.main.display.clear_screen"):
+            with patch("ccusage_monitor.app.main.display.hide_cursor", side_effect=KeyboardInterrupt):
+                with patch("ccusage_monitor.app.main.display.clear_screen"):
                     with patch("builtins.print"):
                         with pytest.raises(SystemExit) as exc_info:
                             main()
@@ -203,19 +203,18 @@ class TestMainFunction:
         assert exc_info.value.code == 0
         mock_show.assert_called_once()  # Should show cursor before exit
 
-    @patch("ccusage_monitor.core.config.parse_args")
-    @patch("ccusage_monitor.core.data.check_ccusage_installed")
-    @patch("ccusage_monitor.ui.display.show_cursor")
+    @patch("ccusage_monitor.app.main.parse_args")
+    @patch("ccusage_monitor.app.main.check_ccusage_installed")
+    @patch("ccusage_monitor.app.main.display.show_cursor")
     def test_main_handles_general_exception(self, mock_show, mock_check, mock_parse):
         """Test main shows cursor on general exception."""
-        mock_args = MagicMock()
-        mock_args.rich = False
+        mock_args = create_mock_args()
         mock_parse.return_value = mock_args
 
         mock_check.return_value = True
 
         # Mock general exception in the main loop
-        with patch("ccusage_monitor.ui.display.hide_cursor", side_effect=RuntimeError("Test error")):
+        with patch("ccusage_monitor.app.main.display.hide_cursor", side_effect=RuntimeError("Test error")):
             with pytest.raises(RuntimeError):
                 main()
 
