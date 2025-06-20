@@ -191,7 +191,7 @@ def main_with_args(args: CLIArgs):
 def main() -> None:
     """Main entry point when called directly."""
     from ccusage_monitor.core.config import parse_args
-    
+
     args = parse_args()
     main_with_args(args)
 

@@ -68,9 +68,7 @@ class RichDisplay:
             expand=False,
         )
 
-    def create_progress_panel(
-        self, token_pct: float, time_pct: float, time_remaining: str
-    ) -> Panel:
+    def create_progress_panel(self, token_pct: float, time_pct: float, time_remaining: str) -> Panel:
         """Create the progress bars panel."""
         # Token progress bar
         token_progress = Progress(
@@ -160,9 +158,7 @@ class RichDisplay:
 
         # Update progress
         self.layout["progress"].update(
-            self.create_progress_panel(
-                data["token_pct"], data["time_pct"], data["time_remaining"]
-            )
+            self.create_progress_panel(data["token_pct"], data["time_pct"], data["time_remaining"])
         )
 
         # Update stats

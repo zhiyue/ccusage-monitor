@@ -15,7 +15,7 @@ from ccusage_monitor.ui import display
 
 def main() -> None:
     """Main monitoring loop with optimized display."""
-    
+
     args = parse_args()
 
     # Use Rich version if requested

@@ -146,7 +146,7 @@ def get_token_limit(plan: str, blocks: Optional[List[CcusageBlock]] = None) -> i
             tokens = block.get("totalTokens", 0)
             if tokens > max_tokens:
                 max_tokens = tokens
-        
+
         # Return highest known limit that accommodates this usage
         if max_tokens > 35000:
             return TOKEN_LIMITS["max20"]
@@ -154,7 +154,7 @@ def get_token_limit(plan: str, blocks: Optional[List[CcusageBlock]] = None) -> i
             return TOKEN_LIMITS["max5"]
         else:
             return TOKEN_LIMITS["pro"]
-    
+
     return TOKEN_LIMITS.get(plan, TOKEN_LIMITS["pro"])
 
 
