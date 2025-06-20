@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 
-import subprocess
+import argparse
 import json
+import os
+import shutil
+import subprocess
 import sys
 import time
 from datetime import datetime, timedelta, timezone
-import os
-import argparse
+
 import pytz
-import shutil
 
 
 def check_ccusage_installed():
@@ -333,13 +334,8 @@ def main():
             if start_time_str:
                 start_time = datetime.fromisoformat(start_time_str.replace('Z', '+00:00'))
                 current_time = datetime.now(start_time.tzinfo)
-                elapsed = current_time - start_time
-                elapsed_minutes = elapsed.total_seconds() / 60
             else:
-                elapsed_minutes = 0
-            
-            session_duration = 300  # 5 hours in minutes
-            remaining_minutes = max(0, session_duration - elapsed_minutes)
+                current_time = datetime.now(timezone.utc)
             
             # Calculate burn rate from ALL sessions in the last hour
             burn_rate = calculate_hourly_burn_rate(data['blocks'], current_time)
@@ -361,8 +357,6 @@ def main():
             
             # Color codes
             cyan = '\033[96m'
-            green = '\033[92m'
-            blue = '\033[94m'
             red = '\033[91m'
             yellow = '\033[93m'
             white = '\033[97m'
@@ -390,7 +384,7 @@ def main():
             # Predictions - convert to configured timezone for display
             try:
                 local_tz = pytz.timezone(args.timezone)
-            except:
+            except pytz.exceptions.UnknownTimeZoneError:
                 local_tz = pytz.timezone('Europe/Warsaw')
             predicted_end_local = predicted_end_time.astimezone(local_tz)
             reset_time_local = reset_time.astimezone(local_tz)

@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Check if a version already exists on PyPI or Test PyPI."""
 
-import sys
-import json
-import urllib.request
-import urllib.error
-from packaging.version import parse
 import argparse
+import json
+import sys
+import urllib.error
+import urllib.request
 
 
 def check_version_exists(package_name, version, test_pypi=False):

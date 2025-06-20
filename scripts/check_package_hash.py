@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Check if package files with same hash already exist on PyPI."""
 
-import sys
-import json
-import hashlib
-import urllib.request
-import urllib.error
 import argparse
+import hashlib
+import json
+import sys
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 
@@ -105,7 +105,7 @@ def main():
         
         # List files that will be uploaded
         dist_path = Path(args.dist_dir)
-        print(f"\nFiles to upload:")
+        print("\nFiles to upload:")
         for file_path in dist_path.glob("*"):
             if file_path.is_file() and file_path.suffix in ['.whl', '.tar.gz', '.zip']:
                 print(f"  - {file_path.name}")

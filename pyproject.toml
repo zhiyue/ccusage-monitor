@@ -50,8 +50,10 @@ profile = "black"
 line_length = 88
 
 [tool.ruff]
-line-length = 88
+line-length = 120
 target-version = "py38"
+
+[tool.ruff.lint]
 select = [
     "E",    # pycodestyle errors
     "F",    # pyflakes
@@ -61,6 +63,10 @@ select = [
     "B",    # flake8-bugbear
     "C4",   # flake8-comprehensions
     "SIM",  # flake8-simplify
+]
+ignore = [
+    "E501",  # line too long - handled by formatter
+    "SIM117", # multiple with statements
 ]
 
 [tool.mypy]
