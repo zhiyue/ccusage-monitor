@@ -1,13 +1,13 @@
 # 🎯 Claude Code Usage Monitor
 
-[![PyPI version](https://badge.fury.io/py/ccusage-monitor.svg)](https://pypi.org/project/ccusage-monitor/)
+[![PyPI version](https://img.shields.io/pypi/v/ccusage-monitor?color=blue)](https://pypi.org/project/ccusage-monitor/)
 [![Python Version](https://img.shields.io/pypi/pyversions/ccusage-monitor)](https://pypi.org/project/ccusage-monitor/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://github.com/zhiyue/ccusage-monitor/actions/workflows/test.yml/badge.svg)](https://github.com/zhiyue/ccusage-monitor/actions/workflows/test.yml)
 [![Test PyPI](https://github.com/zhiyue/ccusage-monitor/actions/workflows/publish-test.yml/badge.svg)](https://github.com/zhiyue/ccusage-monitor/actions/workflows/publish-test.yml)
 [![Release](https://github.com/zhiyue/ccusage-monitor/actions/workflows/publish-release.yml/badge.svg)](https://github.com/zhiyue/ccusage-monitor/actions/workflows/publish-release.yml)
 [![codecov](https://codecov.io/gh/zhiyue/ccusage-monitor/branch/main/graph/badge.svg)](https://codecov.io/gh/zhiyue/ccusage-monitor)
-[![Downloads](https://img.shields.io/pypi/dm/ccusage-monitor)](https://pypi.org/project/ccusage-monitor/)
+[![Downloads](https://img.shields.io/badge/downloads-0%2Fmonth-orange)](https://pypi.org/project/ccusage-monitor/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
