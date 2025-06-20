@@ -53,7 +53,7 @@ class RichDisplay:
             Layout(name="header", size=5),
             Layout(name="progress", size=8),
             Layout(name="stats", size=10),
-            Layout(name="warnings", size=4),
+            Layout(name="warnings", size=6),  # Increased size to prevent layout shifts
             Layout(name="status", size=2),
         )
 
@@ -214,33 +214,41 @@ class RichDisplay:
         )
 
     def create_warnings_panel(self, warnings: List[Tuple[str, str]]) -> Panel:
-        """Create warnings panel if needed."""
+        """Create warnings panel with fixed height."""
+        warning_lines: List[Text] = []
+
         if not warnings:
-            success_text = Text("✅ All systems running smoothly", style="bold bright_green")
-            return Panel(
-                success_text,
-                box=box.ROUNDED,
-                border_style="bright_green",
-                title="[bold bright_green]🟢 System Status[/]",
-                title_align="center",
-                padding=(0, 2),  # Add horizontal padding
-            )
+            warning_lines.append(Text("✅ All systems running smoothly", style="bold bright_green"))
+            border_style = "bright_green"
+            title = "[bold bright_green]🟢 System Status[/]"
+        else:
+            for warning in warnings[:3]:  # Limit to 3 warnings to prevent overflow
+                line = Text()
+                line.append("⚠️  ", style="bold red")
+                line.append(warning[0], style=warning[1])
+                warning_lines.append(line)
+            border_style = "bold red"
+            title = "[bold red]🚨 Warnings[/]"
 
-        warning_text = Text()
-        for i, warning in enumerate(warnings):
+        # Pad with empty lines to maintain consistent height
+        while len(warning_lines) < 3:
+            warning_lines.append(Text(""))
+
+        # Join all lines with newlines
+        content = Text()
+        for i, line in enumerate(warning_lines):
             if i > 0:
-                warning_text.append("\n")
-            warning_text.append("⚠️  ", style="bold red")
-            warning_text.append(warning[0], style=warning[1])
+                content.append("\n")
+            content.append(line)
 
-        # Don't center warnings to avoid layout shifts with long text
         return Panel(
-            warning_text,
+            content,
             box=box.ROUNDED,
-            border_style="bold red",
-            title="[bold red]🚨 Warnings[/]",
+            border_style=border_style,
+            title=title,
             title_align="center",
             padding=(0, 2),  # Add horizontal padding
+            height=6,  # Fixed height to match layout
         )
 
     def create_status_bar(self, time_str: str, message: str = "Smooth sailing...") -> Align:
