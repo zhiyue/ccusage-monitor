@@ -1,9 +1,19 @@
 {
-  "include": ["ccusage_monitor"],
+  "include": ["ccusage_monitor", "tests"],
   "exclude": ["**/__pycache__"],
   "reportGeneralTypeIssues": "warning",
   "reportRedeclaration": "none",
   "reportConstantRedefinition": "none",
   "reportUnusedCallResult": "none",
-  "pythonVersion": "3.8"
+  "pythonVersion": "3.8",
+  "executionEnvironments": [
+    {
+      "root": "ccusage_monitor",
+      "reportUninitializedInstanceVariable": "error"
+    },
+    {
+      "root": "tests",
+      "reportUninitializedInstanceVariable": "none"
+    }
+  ]
 }

@@ -6,7 +6,6 @@ import sys
 import time
 import unittest
 from typing import Dict, List, Optional
-from unittest.mock import Mock
 
 from typing_extensions import override
 
@@ -22,7 +21,7 @@ from ccusage_monitor.protocols import CcusageData
 class TestCacheBasicOperations(unittest.TestCase):
     """Test basic cache operations."""
 
-    cache: Cache[CacheValue]  # Declare instance variable
+    cache: Cache[CacheValue]  # type: ignore[reportUninitializedInstanceVariable]
 
     @override
     def setUp(self) -> None:
@@ -154,7 +153,7 @@ class TestCacheBasicOperations(unittest.TestCase):
 class TestCacheTTL(unittest.TestCase):
     """Test cache TTL (time-to-live) functionality."""
 
-    cache: Cache[CacheValue]  # Declare instance variable
+    cache: Cache[CacheValue]  # type: ignore[reportUninitializedInstanceVariable]
 
     @override
     def setUp(self) -> None:
@@ -309,7 +308,7 @@ class TestGlobalCacheInstance(unittest.TestCase):
 class TestCacheEdgeCases(unittest.TestCase):
     """Test edge cases and error conditions."""
 
-    cache: Cache[CacheValue]  # Declare instance variable
+    cache: Cache[CacheValue]  # type: ignore[reportUninitializedInstanceVariable]
 
     @override
     def setUp(self) -> None:
@@ -398,7 +397,7 @@ class TestCacheEdgeCases(unittest.TestCase):
 class TestCachePerformance(unittest.TestCase):
     """Test cache performance characteristics."""
 
-    cache: Cache[CacheValue]  # Declare instance variable
+    cache: Cache[CacheValue]  # type: ignore[reportUninitializedInstanceVariable]
 
     @override
     def setUp(self) -> None:
