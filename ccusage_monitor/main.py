@@ -4,7 +4,7 @@ import argparse
 import sys
 import time
 from datetime import datetime, timedelta, timezone
-from typing import List
+from typing import List, cast
 
 # Import modules with proper typing
 import pytz
@@ -30,9 +30,11 @@ try:
 
     OPTIMIZED = True
 except ImportError:
-    calculations = calculations_regular
-    data = data_regular
-    display = display_regular
+    # These casts are safe because we know the modules implement the protocols
+    # We suppress warnings about unsafe casts for dynamic module loading
+    calculations = cast(CalculationsProtocol, calculations_regular)  # type: ignore
+    data = cast(DataProtocol, data_regular)  # type: ignore  
+    display = cast(DisplayProtocol, display_regular)  # type: ignore
     OPTIMIZED = False
 
 
