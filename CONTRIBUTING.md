@@ -16,8 +16,7 @@ We welcome all kinds of contributions:
 - **🔧 Code Contributions**: Fix bugs or implement new features
 - **🧪 Testing**: Help test on different platforms
 - **🎨 UI/UX**: Improve the visual design and user experience
-- **🧠 ML Research**: Contribute to machine learning features
-- **📦 Packaging**: Help with PyPI, Docker, or distribution
+- **📦 Packaging**: Help with distribution
 
 ---
 
@@ -41,10 +40,7 @@ source venv/bin/activate  # Linux/Mac
 # venv\Scripts\activate   # Windows
 
 # Install dependencies
-pip install pytz
-
-# Install development dependencies (when available)
-pip install pytest black flake8
+pip install -r requirements.txt
 
 # Make script executable (Linux/Mac)
 chmod +x ccusage_monitor.py
@@ -116,48 +112,30 @@ def predict_token_depletion(current_usage, burn_rate):
     pass
 ```
 
-### 📁 File Organization
+### 📁 Current Project Structure
 
 ```
 Claude-Code-Usage-Monitor/
-├── ccusage_monitor.py     # Main script (current)
-├── claude_monitor/        # Future package structure
-│   ├── __init__.py
-│   ├── core/             # Core monitoring logic
-│   ├── ml/               # Machine learning components
-│   ├── ui/               # User interface components
-│   └── utils/            # Utility functions
-├── tests/                # Test files
-├── docs/                 # Documentation
-├── examples/             # Usage examples
-└── scripts/              # Build and deployment scripts
+├── ccusage_monitor.py     # Main monitoring script
+├── pyproject.toml        # Package configuration for uvx
+├── requirements.txt      # Python dependencies
+├── README.md            # Main documentation
+├── CONTRIBUTING.md      # This file
+├── DEVELOPMENT.md       # Future development roadmap
+├── TROUBLESHOOTING.md   # Common issues and solutions
+└── doc/                 # Documentation assets
+    └── sc.png          # Screenshot
 ```
 
 ### 🧪 Testing Guidelines
 
-```python
-# Test file naming: test_*.py
-# tests/test_core.py
+*Note: The project currently doesn't have a test suite. This is a great area for contribution!*
 
-import pytest
-from claude_monitor.core import TokenMonitor
-
-def test_token_calculation():
-    """Test token usage calculation."""
-    monitor = TokenMonitor()
-    result = monitor.calculate_usage(1000, 500)
-    assert result == 50.0  # 50% usage
-
-def test_burn_rate_calculation():
-    """Test burn rate calculation with edge cases."""
-    monitor = TokenMonitor()
-    
-    # Normal case
-    assert monitor.calculate_burn_rate(100, 10) == 10.0
-    
-    # Edge case: zero time
-    assert monitor.calculate_burn_rate(100, 0) == 0
-```
+When adding tests in the future:
+- Test file naming: `test_*.py`
+- Use pytest for testing framework
+- Test edge cases and error conditions
+- Ensure cross-platform compatibility
 
 ### 📝 Commit Message Format
 
@@ -181,47 +159,28 @@ git commit -m "Docs: Add examples for timezone configuration"
 ```
 
 
-## 🎯 Contribution Areas (Priority things)
+## 🎯 Contribution Areas (Priority)
 
-### 📦 PyPI Package Development
+### 🔧 Core Features & Bug Fixes
 
 **Current Needs**:
-- Create proper package structure
-- Configure setup.py and requirements
-- Implement global configuration system
-- Add command-line entry points
+- Improve error handling
+- Add more configuration options
+- Optimize performance
+- Fix cross-platform issues
+- Add unit tests
 
 **Skills Helpful**:
-- Python packaging (setuptools, wheel)
-- Configuration management
+- Python development
+- Terminal/console applications
 - Cross-platform compatibility
-- Command-line interface design
+- Performance optimization
 
 **Getting Started**:
-1. Study existing PyPI packages for examples
-2. Create basic package structure
-3. Test installation in virtual environments
-4. Implement configuration file handling
-
-### 🐳 Docker & Web Features
-
-**Current Needs**:
-- Create efficient Dockerfile
-- Build web dashboard interface
-- Implement REST API
-- Design responsive UI
-
-**Skills Helpful**:
-- Docker containerization
-- React/TypeScript for frontend
-- Python web frameworks (Flask/FastAPI)
-- Responsive web design
-
-**Getting Started**:
-1. Create basic Dockerfile for current script
-2. Design web interface mockups
-3. Implement simple REST API
-4. Build responsive dashboard components
+1. Run the monitor on different platforms
+2. Identify and fix platform-specific issues
+3. Improve error messages and handling
+4. Add new configuration options
 
 ### 🔧 Core Features & Bug Fixes
 
@@ -328,30 +287,15 @@ We evaluate features based on:
 
 ## 🧪 Testing Contributions
 
-### 🔧 Running Tests
+### 🔧 Testing
 
-```bash
-# Run all tests
-pytest
+*Note: Test infrastructure is not yet implemented. Help us set it up!*
 
-# Run specific test file
-pytest tests/test_core.py
-
-# Run with coverage
-pytest --cov=claude_monitor
-
-# Run tests on multiple Python versions (if using tox)
-tox
-```
-
-### 📊 Test Coverage
-
-We aim for high test coverage:
-
-- **Core functionality**: 95%+ coverage
-- **ML components**: 90%+ coverage  
-- **UI components**: 80%+ coverage
-- **Utility functions**: 95%+ coverage
+Future testing goals:
+- Set up pytest framework
+- Add unit tests for core functions
+- Test cross-platform compatibility
+- Add CI/CD integration
 
 ### 🌍 Platform Testing
 
@@ -360,7 +304,7 @@ Help us test on different platforms:
 - **Linux**: Ubuntu, Fedora, Arch, Debian
 - **macOS**: Intel and Apple Silicon Macs
 - **Windows**: Windows 10/11, different Python installations
-- **Python versions**: 3.6, 3.7, 3.8, 3.9, 3.10, 3.11
+- **Python versions**: 3.8, 3.9, 3.10, 3.11, 3.12
 
 ---
 
@@ -438,7 +382,7 @@ Outstanding contributors will be featured:
 
 ### 📚 Resources
 
-- **[DEVELOPMENT.md](DEVELOPMENT.md)**: Development roadmap
+- **[ROADMAP.md](ROADMAP.md)**: Future development plans
 - **[README.md](README.md)**: Installation, usage, and features
 - **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)**: Common issues
 

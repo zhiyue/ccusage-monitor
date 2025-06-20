@@ -8,18 +8,43 @@ from datetime import datetime, timedelta, timezone
 import os
 import argparse
 import pytz
+import shutil
+
+
+def check_ccusage_installed():
+    """Check if ccusage is installed."""
+    # Use shutil.which for more reliable command detection
+    if shutil.which('ccusage'):
+        return True
+    
+    # ccusage not found
+    print("❌ 'ccusage' command not found!")
+    print("\nThis tool requires 'ccusage' to be installed globally via npm.")
+    print("\nTo install ccusage:")
+    print("1. Install Node.js from https://nodejs.org/ (if not already installed)")
+    print("2. Run: npm install -g ccusage")
+    print("\nFor more information, visit: https://github.com/ryoppippi/ccusage")
+    return False
 
 
 def run_ccusage():
     """Execute ccusage blocks --json command and return parsed JSON data."""
     try:
-        result = subprocess.run(['ccusage', 'blocks', '--json'], capture_output=True, text=True, check=True)
+        result = subprocess.run(['ccusage', 'blocks', '--offline', '--json'], capture_output=True, text=True, check=True)
         return json.loads(result.stdout)
+    except FileNotFoundError:
+        print("❌ ccusage command not found. Please install it with: npm install -g ccusage")
+        return None
     except subprocess.CalledProcessError as e:
-        print(f"Error running ccusage: {e}")
+        print(f"❌ Error running ccusage: {e}")
+        if e.stderr:
+            print(f"Error details: {e.stderr}")
+        print("\nPossible solutions:")
+        print("1. Make sure you're logged into Claude in your browser")
+        print("2. Try running 'ccusage login' if authentication is required")
         return None
     except json.JSONDecodeError as e:
-        print(f"Error parsing JSON: {e}")
+        print(f"❌ Error parsing JSON from ccusage: {e}")
         return None
 
 
@@ -249,6 +274,11 @@ def get_token_limit(plan, blocks=None):
 def main():
     """Main monitoring loop."""
     args = parse_args()
+    
+    # Check if ccusage is installed
+    if not check_ccusage_installed():
+        print("\n❌ Cannot proceed without ccusage. Exiting.")
+        sys.exit(1)
     
     # For 'custom_max' plan, we need to get data first to determine the limit
     if args.plan == 'custom_max':

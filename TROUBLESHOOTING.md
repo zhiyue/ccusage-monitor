@@ -4,8 +4,6 @@ Common issues and solutions for Claude Code Usage Monitor.
 
 ## 🚨 Quick Fixes
 
-### Most Common Issues
-
 | Problem | Quick Fix |
 |---------|-----------|
 | `ccusage` not found | `npm install -g ccusage` |
@@ -13,6 +11,7 @@ Common issues and solutions for Claude Code Usage Monitor.
 | Permission denied | `chmod +x ccusage_monitor.py` (Linux/Mac) |
 | Display issues | Resize terminal to 80+ characters width |
 | Hidden cursor after exit | `printf '\033[?25h'` |
+| Python module missing | `pip install -r requirements.txt` |
 
 
 ## 🔧 Installation Issues
@@ -60,11 +59,11 @@ ModuleNotFoundError: No module named 'pytz'
 **Solution**:
 ```bash
 # Install required dependencies
-pip install pytz
+pip install -r requirements.txt
 
 # For virtual environment users:
 source venv/bin/activate  # Linux/Mac
-pip install pytz
+pip install -r requirements.txt
 ```
 
 ### Permission Denied (Linux/Mac)

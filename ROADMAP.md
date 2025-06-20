@@ -1,6 +1,19 @@
-# 🚧 Development Roadmap
+# 🚀 Future Development Roadmap
 
-Features currently in development and planned for future releases of Claude Code Usage Monitor.
+> **⚠️ IMPORTANT**: This document describes **FUTURE PLANS** and **ASPIRATIONAL FEATURES** that do NOT currently exist. The current implementation is a simple Python script that monitors Claude token usage. This roadmap represents potential future enhancements.
+
+## 📌 Current State
+
+The Claude Code Usage Monitor is currently a **single Python script** (`ccusage_monitor.py`) that:
+- ✅ Monitors real-time token usage
+- ✅ Shows visual progress bars
+- ✅ Predicts token depletion
+- ✅ Supports multiple Claude plans
+- ✅ Works cross-platform
+
+## 🔮 Future Vision
+
+Below are ideas for potential future development. These features are NOT implemented yet:
 
 
 ## 🎯 Current Development Status
