@@ -1,6 +1,5 @@
 """Optimized display module with buffered output."""
 
-import os
 import sys
 from io import StringIO
 
@@ -123,8 +122,9 @@ def format_time(minutes: float) -> str:
 
 
 def clear_screen() -> None:
-    """Clear screen efficiently."""
-    os.system("clear" if os.name == "posix" else "cls")
+    """Clear the terminal screen."""
+    # Use ANSI escape codes for better compatibility
+    print("\033[2J\033[3J\033[H", end="", flush=True)
 
 
 def hide_cursor() -> None:

@@ -74,8 +74,8 @@ def main():
         display.hide_cursor()
 
         while True:
-            # Move cursor to top without clearing
-            display.move_cursor_to_top()
+            # Clear screen and move cursor to home position
+            print("\033[2J\033[H", end="", flush=True)
 
             ccusage_data = data.run_ccusage()
             if not ccusage_data or "blocks" not in ccusage_data:
@@ -204,12 +204,7 @@ def main():
                 f"⏰ {gray}{current_time_str}{reset} 📝 {cyan}Smooth sailing...{reset}{perf_indicator} | {gray}Ctrl+C to exit{reset} 🟨"
             )
 
-            # Clear any remaining lines below to prevent artifacts
-            display.clear_below_cursor()
-
-            # Flush buffer if using optimized display
-            if OPTIMIZED and hasattr(display, "_buffer"):
-                display._buffer.flush()
+            # No need to clear below cursor since we clear the whole screen each time
 
             time.sleep(3)
 

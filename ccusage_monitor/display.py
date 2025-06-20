@@ -1,7 +1,5 @@
 """Display module for terminal UI functions."""
 
-import os
-
 
 def print_header():
     """Print the stylized header with sparkles."""
@@ -65,7 +63,8 @@ def format_time(minutes):
 
 def clear_screen():
     """Clear the terminal screen."""
-    os.system("clear" if os.name == "posix" else "cls")
+    # Use ANSI escape codes for better compatibility
+    print("\033[2J\033[3J\033[H", end="", flush=True)
 
 
 def hide_cursor():
