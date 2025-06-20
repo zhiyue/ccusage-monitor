@@ -4,37 +4,26 @@ import argparse
 import sys
 import time
 from datetime import datetime, timedelta, timezone
-from typing import List, cast
+from typing import List
 
 # Import modules with proper typing
 import pytz
 
-from ccusage_monitor import calculations as calculations_regular
-from ccusage_monitor import data as data_regular
-from ccusage_monitor import display as display_regular
-from ccusage_monitor.protocols import (
-    CalculationsProtocol,
-    CLIArgs,
-    DataProtocol,
-    DisplayProtocol,
-)
+from ccusage_monitor.protocols import CLIArgs
 
-# Try to import optimized modules, fallback to regular ones
-calculations: CalculationsProtocol
-data: DataProtocol
-display: DisplayProtocol
+# Import modules - dynamic loading with fallback
+# Type checkers have limitations with conditional imports, so we use selective ignoring
 try:
-    from ccusage_monitor import calculations_optimized as calculations
-    from ccusage_monitor import data_optimized as data
-    from ccusage_monitor import display_optimized as display
+    from ccusage_monitor import calculations_optimized as calculations  # type: ignore[misc]
+    from ccusage_monitor import data_optimized as data  # type: ignore[misc]
+    from ccusage_monitor import display_optimized as display  # type: ignore[misc]
 
     OPTIMIZED = True
 except ImportError:
-    # These casts are safe because we know the modules implement the protocols
-    # We suppress warnings about unsafe casts for dynamic module loading
-    calculations = cast(CalculationsProtocol, calculations_regular)  # type: ignore
-    data = cast(DataProtocol, data_regular)  # type: ignore  
-    display = cast(DisplayProtocol, display_regular)  # type: ignore
+    from ccusage_monitor import calculations  # type: ignore[misc,no-redef]
+    from ccusage_monitor import data  # type: ignore[misc,no-redef]
+    from ccusage_monitor import display  # type: ignore[misc,no-redef]
+
     OPTIMIZED = False
 
 
@@ -179,7 +168,7 @@ def main() -> None:
 
             # Initialize output list for non-optimized display
             output: List[str] = []
-            
+
             # Build output based on whether we're using optimized display
             if OPTIMIZED and hasattr(display, "_buffer"):
                 # Use the buffer from display_optimized
