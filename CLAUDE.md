@@ -46,7 +46,9 @@ ccusage-monitor/
 ### Git Workflow
 - Write clear commit messages
 - Use conventional commits when possible
-- Don't use `git add .` - add specific files
+- **NEVER use `git add .` or `git add -A`** - only add files you modified in the current task
+- Always explicitly add each file with `git add <filename>`
+- Review changes with `git status` before staging
 - Always test before committing
 
 ## Dependencies
