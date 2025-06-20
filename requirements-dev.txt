@@ -14,3 +14,6 @@ types-pytz>=2021.1
 
 # Coverage
 coverage[toml]>=7.0.0
+
+# Performance benchmarking
+psutil>=5.9.0
