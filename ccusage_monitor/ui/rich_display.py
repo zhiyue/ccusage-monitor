@@ -58,30 +58,22 @@ class RichDisplay:
         )
 
     def create_header(self) -> Panel:
-        """Create the header panel with animated effects."""
+        """Create the header panel with subtle animation."""
         import time
 
-        # Create pulsing effect based on current second
-        pulse_phase = int(time.time() % 4)
+        # Create subtle pulsing effect based on current time (slower)
+        pulse_phase = int(time.time() / 2) % 2  # Changes every 2 seconds
 
         header_text = Text()
 
         if pulse_phase == 0:
-            header_text.append("✨ ⭐ ✨ ", style="bold bright_cyan")
+            header_text.append("✨ ", style="bold bright_cyan")
             header_text.append("CLAUDE TOKEN MONITOR", style="bold bright_white on blue")
-            header_text.append(" ✨ ⭐ ✨", style="bold bright_cyan")
-        elif pulse_phase == 1:
-            header_text.append("⭐ ✨ ⭐ ", style="bold cyan")
-            header_text.append("CLAUDE TOKEN MONITOR", style="bold white on bright_blue")
-            header_text.append(" ⭐ ✨ ⭐", style="bold cyan")
-        elif pulse_phase == 2:
-            header_text.append("✨ ⭐ ✨ ", style="bold bright_cyan")
-            header_text.append("CLAUDE TOKEN MONITOR", style="bold bright_white on blue")
-            header_text.append(" ✨ ⭐ ✨", style="bold bright_cyan")
+            header_text.append(" ✨", style="bold bright_cyan")
         else:
-            header_text.append("⭐ ✨ ⭐ ", style="bold cyan")
-            header_text.append("CLAUDE TOKEN MONITOR", style="bold white on dark_blue")
-            header_text.append(" ⭐ ✨ ⭐", style="bold cyan")
+            header_text.append("⭐ ", style="bold cyan")
+            header_text.append("CLAUDE TOKEN MONITOR", style="bold white on bright_blue")
+            header_text.append(" ⭐", style="bold cyan")
 
         centered_header = Align.center(header_text)
 
@@ -142,14 +134,14 @@ class RichDisplay:
         table.add_row("")  # Empty row for spacing
         table.add_row(time_progress)
 
-        centered_table = Align.center(table)
-
+        # Don't center table to maintain consistent layout
         return Panel(
-            centered_table,
+            table,
             box=box.ROUNDED,
             border_style="bright_blue",
             title="[bold bright_yellow]📈 Progress Tracking[/]",
             title_align="center",
+            padding=(0, 2),  # Add horizontal padding
         )
 
     def create_stats_panel(self, stats: StatsData) -> Panel:
@@ -206,33 +198,32 @@ class RichDisplay:
         else:
             cost_style = "bold green"
             cost_emoji = "💰"
-            
+
         cost_text.append(f"${stats['cost_usd']:.2f}", style=cost_style)
         cost_text.append(" this 5hr window", style="dim white")
         table.add_row(f"{cost_emoji} Cost:", cost_text)
 
-        centered_stats = Align.center(table)
-
+        # Don't center stats to maintain consistent layout
         return Panel(
-            centered_stats,
+            table,
             box=box.ROUNDED,
             border_style="bright_green",
             title="[bold bright_yellow]📊 Token Statistics[/]",
             title_align="center",
+            padding=(0, 2),  # Add horizontal padding
         )
-
 
     def create_warnings_panel(self, warnings: List[Tuple[str, str]]) -> Panel:
         """Create warnings panel if needed."""
         if not warnings:
             success_text = Text("✅ All systems running smoothly", style="bold bright_green")
-            centered_success = Align.center(success_text)
             return Panel(
-                centered_success,
+                success_text,
                 box=box.ROUNDED,
                 border_style="bright_green",
                 title="[bold bright_green]🟢 System Status[/]",
                 title_align="center",
+                padding=(0, 2),  # Add horizontal padding
             )
 
         warning_text = Text()
@@ -242,14 +233,14 @@ class RichDisplay:
             warning_text.append("⚠️  ", style="bold red")
             warning_text.append(warning[0], style=warning[1])
 
-        centered_warnings = Align.center(warning_text)
-
+        # Don't center warnings to avoid layout shifts with long text
         return Panel(
-            centered_warnings,
+            warning_text,
             box=box.ROUNDED,
             border_style="bold red",
             title="[bold red]🚨 Warnings[/]",
             title_align="center",
+            padding=(0, 2),  # Add horizontal padding
         )
 
     def create_status_bar(self, time_str: str, message: str = "Smooth sailing...") -> Align:
@@ -321,8 +312,7 @@ class RichDisplay:
     def display(self, data: DisplayData):
         """Display the complete interface."""
         self.update_display(data)
-        self.console.clear()
-        self.console.print(self.layout)
+        # Note: console.clear() removed - Live handles screen updates
 
     def update_display(self, data: DisplayData):
         """Update the entire display with new data."""
@@ -336,7 +326,6 @@ class RichDisplay:
 
         # Update stats
         self.layout["stats"].update(self.create_stats_panel(data["stats"]))
-
 
         # Update warnings
         self.layout["warnings"].update(self.create_warnings_panel(data["warnings"]))

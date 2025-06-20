@@ -47,7 +47,7 @@ def main_with_args(args: CLIArgs):
 
     try:
         # Use Rich's Live display for flicker-free updates
-        with Live(display.layout, refresh_per_second=1, screen=True):
+        with Live(display.layout, refresh_per_second=4, screen=True, transient=False):
             while True:
                 ccusage_data = data.run_ccusage()
                 if not ccusage_data or "blocks" not in ccusage_data:
@@ -159,7 +159,7 @@ def main_with_args(args: CLIArgs):
                         (f"🔄 Tokens exceeded Pro limit - switched to custom_max ({token_limit:,})", "yellow")
                     )
                 if tokens_used > token_limit:
-                    warnings.append((f"🚨 TOKENS EXCEEDED MAX LIMIT! ({tokens_used:,} > {token_limit:,})", "red bold"))
+                    warnings.append(("🚨 TOKENS EXCEEDED LIMIT!", "red bold"))
                 if predicted_end_time < reset_time and burn_rate > 0:
                     warnings.append(("⚠️  Tokens will run out BEFORE reset!", "red"))
 
