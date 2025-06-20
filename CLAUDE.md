@@ -36,6 +36,9 @@ ccusage-monitor/
 - Use type hints where beneficial
 - Keep functions focused and testable
 - Prefer descriptive variable names
+- **Keep Python files under 300 lines** - refactor larger files into modules
+  - If a file exceeds 300 lines, split it into logical modules
+  - Each module should have a single, clear responsibility
 
 ### Testing (TDD Approach)
 - **ALWAYS write tests BEFORE writing code** (Test-Driven Development)
@@ -125,6 +128,7 @@ pytest tests/test_ccusage_monitor.py -v
 - Default timezone is Europe/Warsaw
 - Token limits: Pro (7k), Max5 (35k), Max20 (140k)
 - Sessions last exactly 5 hours
+- **NOTE**: ccusage_monitor.py currently has 442 lines and needs refactoring to comply with the 300-line rule
 
 ## Future Improvements
 
