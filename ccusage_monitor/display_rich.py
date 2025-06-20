@@ -107,7 +107,7 @@ class RichDisplay:
     def create_warnings_panel(self, warnings: list) -> Panel:
         """Create warnings panel if needed."""
         if not warnings:
-            return Panel("", box=None, height=1)
+            return Panel("", box=box.ROUNDED, height=1, border_style="dim")
 
         warning_text = Text()
         for i, warning in enumerate(warnings):

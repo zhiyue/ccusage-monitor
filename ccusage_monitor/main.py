@@ -5,20 +5,22 @@ import sys
 import time
 from datetime import datetime, timedelta, timezone
 
+# Import modules with proper typing
 import pytz
 
-# Use optimized modules if available, fallback to original
+# Try to import optimized modules, fallback to regular ones
 try:
-    from ccusage_monitor import calculations_optimized as _calculations
-    from ccusage_monitor import data_optimized as _data
-    from ccusage_monitor import display_optimized as _display
+    from ccusage_monitor import calculations_optimized as calculations
+    from ccusage_monitor import data_optimized as data
+    from ccusage_monitor import display_optimized as display
 
-    calculations = _calculations
-    data = _data
-    display = _display
     OPTIMIZED = True
 except ImportError:
-    from ccusage_monitor import calculations, data, display
+    from ccusage_monitor import (
+        calculations,  # type: ignore[no-redef]
+        data,  # type: ignore[no-redef]
+        display,  # type: ignore[no-redef]
+    )
 
     OPTIMIZED = False
 
@@ -60,9 +62,9 @@ def main():
     # Use Rich version if requested
     if args.rich:
         try:
-            from ccusage_monitor.main_rich import main as rich_main
+            from ccusage_monitor.main_rich import main_with_args as rich_main
 
-            rich_main()
+            rich_main(args)
             return
         except ImportError:
             print("❌ Rich library not installed. Install with: pip install rich")

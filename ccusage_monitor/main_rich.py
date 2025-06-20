@@ -49,9 +49,12 @@ def format_time(minutes):
     return f"{hours}h {mins}m"
 
 
-def main():
-    """Main monitoring loop with Rich display."""
-    args = parse_args()
+def main_with_args(args):
+    """Main monitoring loop with Rich display using provided args."""
+
+    # Ensure refresh attribute exists
+    if not hasattr(args, "refresh"):
+        args.refresh = 3
 
     # Check if ccusage is installed
     if not data.check_ccusage_installed():
@@ -212,6 +215,12 @@ def main():
     except KeyboardInterrupt:
         print("\n\n[cyan]Monitoring stopped.[/cyan]")
         sys.exit(0)
+
+
+def main():
+    """Main entry point when called directly."""
+    args = parse_args()
+    main_with_args(args)
 
 
 if __name__ == "__main__":
