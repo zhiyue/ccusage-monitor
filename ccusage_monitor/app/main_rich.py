@@ -47,7 +47,7 @@ def main_with_args(args: CLIArgs):
 
     try:
         # Use Rich's Live display for flicker-free updates
-        with Live(console=display.console, refresh_per_second=4, screen=True, transient=False) as live:
+        with Live(display.layout, refresh_per_second=1, screen=True, transient=False):
             while True:
                 ccusage_data = data.run_ccusage()
                 if not ccusage_data or "blocks" not in ccusage_data:
@@ -70,7 +70,7 @@ def main_with_args(args: CLIArgs):
                         "warnings": [("Failed to get usage data", "red")],
                         "status_message": "Waiting for data...",
                     }
-                    live.update(display.create_display_group(error_data))
+                    display.update_display(error_data)
                     time.sleep(args.refresh)
                     continue
 
@@ -100,7 +100,7 @@ def main_with_args(args: CLIArgs):
                         "warnings": [("No active session found", "yellow")],
                         "status_message": "Waiting for session...",
                     }
-                    live.update(display.create_display_group(no_session_data))
+                    display.update_display(no_session_data)
                     time.sleep(args.refresh)
                     continue
 
@@ -179,8 +179,8 @@ def main_with_args(args: CLIArgs):
                     "status_message": "Smooth sailing...",
                 }
 
-                # Use the Group display instead of Layout
-                live.update(display.create_display_group(display_data))
+                # Update the display
+                display.update_display(display_data)
 
                 time.sleep(args.refresh)
 
