@@ -52,16 +52,26 @@ jobs:
         
     - name: Publish to Test PyPI
       if: steps.check_exists.outputs.SHOULD_PUBLISH == 'true'
+      id: publish
+      continue-on-error: true
       env:
         UV_PUBLISH_USERNAME: __token__
         UV_PUBLISH_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
       run: |
         echo "📤 Publishing to Test PyPI..."
-        uv publish \
+        if uv publish \
           --publish-url https://test.pypi.org/legacy/ \
-          --check-url https://test.pypi.org/simple/
-        echo "✅ Successfully published version ${{ steps.get_version.outputs.VERSION }} to Test PyPI"
-        echo "🔗 View at: https://test.pypi.org/project/ccusage-monitor/${{ steps.get_version.outputs.VERSION }}/"
+          --check-url https://test.pypi.org/simple/; then
+          echo "✅ Successfully published version ${{ steps.get_version.outputs.VERSION }} to Test PyPI"
+          echo "🔗 View at: https://test.pypi.org/project/ccusage-monitor/${{ steps.get_version.outputs.VERSION }}/"
+        else
+          exit_code=$?
+          echo "⚠️ Failed to publish. This might be because:"
+          echo "   - Files already exist with different content"
+          echo "   - Network or authentication issues"
+          echo "Exit code: $exit_code"
+          exit $exit_code
+        fi
         
     - name: Skip publish (already exists)
       if: steps.check_exists.outputs.SHOULD_PUBLISH == 'false'
@@ -70,3 +80,21 @@ jobs:
         echo "💡 To publish a new version, make sure to:"
         echo "   1. Update the version in pyproject.toml"
         echo "   2. Make actual code changes"
+        
+    - name: Publish Summary
+      if: always()
+      run: |
+        echo "## 📊 Publish Summary"
+        echo ""
+        if [[ "${{ steps.check_exists.outputs.SHOULD_PUBLISH }}" == "false" ]]; then
+          echo "✅ **Result**: Skipped (files already exist with same content)"
+        elif [[ "${{ steps.publish.outcome }}" == "success" ]]; then
+          echo "✅ **Result**: Successfully published to Test PyPI"
+        elif [[ "${{ steps.publish.outcome }}" == "failure" ]]; then
+          echo "⚠️ **Result**: Failed to publish (files exist with different content or other error)"
+          echo ""
+          echo "This is expected when the same version has different content."
+          echo "To resolve: bump the version in pyproject.toml"
+        else
+          echo "ℹ️ **Result**: No publish attempted"
+        fi
