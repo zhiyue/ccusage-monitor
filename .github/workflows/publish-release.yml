@@ -1,0 +1,99 @@
+name: Publish Release to PyPI
+
+on:
+  push:
+    tags:
+      - 'v*'
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (build only, no publish)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      
+    - name: Get package version
+      id: get_version
+      run: |
+        VERSION=$(grep '^version' pyproject.toml | cut -d '"' -f 2)
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "📦 Package version: $VERSION"
+        
+        # Verify tag matches version (if triggered by tag)
+        if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+          TAG_VERSION="${{ github.ref_name }}"
+          TAG_VERSION="${TAG_VERSION#v}"  # Remove 'v' prefix
+          if [[ "$VERSION" != "$TAG_VERSION" ]]; then
+            echo "❌ Error: Package version ($VERSION) doesn't match tag version ($TAG_VERSION)"
+            exit 1
+          fi
+          echo "✅ Package version matches tag version"
+        fi
+    
+    - name: Build package
+      run: |
+        echo "🔨 Building package..."
+        uv build
+        echo "✅ Build complete. Files:"
+        ls -la dist/
+      
+    - name: Check if package already exists
+      id: check_exists
+      continue-on-error: true
+      run: |
+        echo "🔍 Checking if package already exists on PyPI..."
+        python scripts/check_package_hash.py \
+          --version ${{ steps.get_version.outputs.VERSION }}
+        
+    - name: Publish to PyPI
+      if: |
+        steps.check_exists.outcome == 'success' &&
+        (!inputs.dry_run || inputs.dry_run == false)
+      env:
+        UV_PUBLISH_USERNAME: __token__
+        UV_PUBLISH_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        echo "📤 Publishing to PyPI..."
+        uv publish
+        echo "✅ Successfully published version ${{ steps.get_version.outputs.VERSION }} to PyPI"
+        echo "🔗 View at: https://pypi.org/project/ccusage-monitor/${{ steps.get_version.outputs.VERSION }}/"
+        echo ""
+        echo "📦 Installation:"
+        echo "   pip install ccusage-monitor==${{ steps.get_version.outputs.VERSION }}"
+        echo "   uvx ccusage-monitor"
+        
+    - name: Skip publish (already exists)
+      if: steps.check_exists.outcome == 'failure'
+      run: |
+        echo "⏭️ Skipping publish - package with same content already exists on PyPI"
+        echo "💡 This usually means the release was already published"
+        
+    - name: Dry run complete
+      if: inputs.dry_run == true
+      run: |
+        echo "✅ Dry run complete - no packages were published"
+        echo "📦 Would have published version ${{ steps.get_version.outputs.VERSION }}"
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-packages
+        path: dist/
+        retention-days: 30
