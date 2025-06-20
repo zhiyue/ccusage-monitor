@@ -59,22 +59,11 @@ class RichDisplay:
         )
 
     def create_header(self) -> Panel:
-        """Create the header panel with subtle animation."""
-        import time
-
-        # Create subtle pulsing effect based on current time (slower)
-        pulse_phase = int(time.time() / 2) % 2  # Changes every 2 seconds
-
+        """Create the header panel without animation."""
         header_text = Text()
-
-        if pulse_phase == 0:
-            header_text.append("✨ ", style="bold bright_cyan")
-            header_text.append("CLAUDE TOKEN MONITOR", style="bold bright_white on blue")
-            header_text.append(" ✨", style="bold bright_cyan")
-        else:
-            header_text.append("⭐ ", style="bold cyan")
-            header_text.append("CLAUDE TOKEN MONITOR", style="bold white on bright_blue")
-            header_text.append(" ⭐", style="bold cyan")
+        header_text.append("✨ ", style="bold bright_cyan")
+        header_text.append("CLAUDE TOKEN MONITOR", style="bold bright_white on blue")
+        header_text.append(" ✨", style="bold bright_cyan")
 
         centered_header = Align.center(header_text)
 
