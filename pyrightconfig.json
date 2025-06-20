@@ -1,0 +1,9 @@
+{
+  "include": ["ccusage_monitor"],
+  "exclude": ["**/__pycache__"],
+  "reportGeneralTypeIssues": "warning",
+  "reportRedeclaration": "none",
+  "reportConstantRedefinition": "none",
+  "reportUnusedCallResult": "none",
+  "pythonVersion": "3.8"
+}

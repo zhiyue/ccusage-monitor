@@ -3,9 +3,12 @@
 import json
 import shutil
 import subprocess
+from typing import List, Optional, cast
+
+from .protocols import CcusageBlock, CcusageData
 
 
-def check_ccusage_installed():
+def check_ccusage_installed() -> bool:
     """Check if ccusage is installed."""
     # Use shutil.which for more reliable command detection
     if shutil.which("ccusage"):
@@ -21,20 +24,21 @@ def check_ccusage_installed():
     return False
 
 
-def run_ccusage():
+def run_ccusage() -> Optional[CcusageData]:
     """Execute ccusage blocks --json command and return parsed JSON data."""
     try:
         result = subprocess.run(
             ["ccusage", "blocks", "--offline", "--json"], capture_output=True, text=True, check=True
         )
-        return json.loads(result.stdout)
+        return cast(CcusageData, json.loads(result.stdout))
     except FileNotFoundError:
         print("❌ ccusage command not found. Please install it with: npm install -g ccusage")
         return None
     except subprocess.CalledProcessError as e:
         print(f"❌ Error running ccusage: {e}")
-        if e.stderr:
-            print(f"Error details: {e.stderr}")
+        stderr_str = cast(Optional[str], e.stderr)
+        if stderr_str:
+            print(f"Error details: {stderr_str}")
         print("\nPossible solutions:")
         print("1. Make sure you're logged into Claude in your browser")
         print("2. Try running 'ccusage login' if authentication is required")
@@ -44,7 +48,7 @@ def run_ccusage():
         return None
 
 
-def get_token_limit(plan, blocks=None):
+def get_token_limit(plan: str, blocks: Optional[List[CcusageBlock]] = None) -> int:
     """Get token limit based on plan type."""
     if plan == "custom_max" and blocks:
         # Find the highest token count from all previous blocks

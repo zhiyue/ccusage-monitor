@@ -1,7 +1,9 @@
 """Display module for terminal UI functions."""
 
+from typing import Union
 
-def print_header():
+
+def print_header() -> None:
     """Print the stylized header with sparkles."""
     cyan = "\033[96m"
     blue = "\033[94m"
@@ -15,7 +17,7 @@ def print_header():
     print()
 
 
-def create_token_progress_bar(percentage, width=50):
+def create_token_progress_bar(percentage: float, width: int = 50) -> str:
     """Create a token usage progress bar with bracket style."""
     filled = int(width * percentage / 100)
 
@@ -31,7 +33,9 @@ def create_token_progress_bar(percentage, width=50):
     return f"🟢 [{green}{green_bar}{red}{red_bar}{reset}] {percentage:.1f}%"
 
 
-def create_time_progress_bar(elapsed_minutes, total_minutes, width=50):
+def create_time_progress_bar(
+    elapsed_minutes: Union[int, float], total_minutes: Union[int, float], width: int = 50
+) -> str:
     """Create a time progress bar showing time until reset."""
     percentage = 0 if total_minutes <= 0 else min(100, (elapsed_minutes / total_minutes) * 100)
 
@@ -50,7 +54,7 @@ def create_time_progress_bar(elapsed_minutes, total_minutes, width=50):
     return f"⏰ [{blue}{blue_bar}{red}{red_bar}{reset}] {remaining_time}"
 
 
-def format_time(minutes):
+def format_time(minutes: Union[int, float]) -> str:
     """Format minutes into human-readable time (e.g., '3h 45m')."""
     if minutes < 60:
         return f"{int(minutes)}m"
@@ -61,27 +65,27 @@ def format_time(minutes):
     return f"{hours}h {mins}m"
 
 
-def clear_screen():
+def clear_screen() -> None:
     """Clear the terminal screen."""
     # Use ANSI escape codes for better compatibility
     print("\033[2J\033[3J\033[H", end="", flush=True)
 
 
-def hide_cursor():
+def hide_cursor() -> None:
     """Hide the terminal cursor."""
     print("\033[?25l", end="", flush=True)
 
 
-def show_cursor():
+def show_cursor() -> None:
     """Show the terminal cursor."""
     print("\033[?25h", end="", flush=True)
 
 
-def move_cursor_to_top():
+def move_cursor_to_top() -> None:
     """Move cursor to top of screen."""
     print("\033[H", end="", flush=True)
 
 
-def clear_below_cursor():
+def clear_below_cursor() -> None:
     """Clear any remaining lines below cursor."""
     print("\033[J", end="", flush=True)

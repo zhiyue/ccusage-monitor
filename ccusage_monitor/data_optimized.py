@@ -4,20 +4,21 @@ import asyncio
 import json
 import shutil
 import subprocess
-from typing import Any, Dict, Optional, cast
+from typing import List, Optional, cast
 
-from ccusage_monitor.cache import _cache
+from ccusage_monitor.cache import cache
+from ccusage_monitor.protocols import CcusageBlock, CcusageData
 
 
-def check_ccusage_installed():
+def check_ccusage_installed() -> bool:
     """Check if ccusage is installed (with caching)."""
     # Cache the result for the entire session
-    cached = _cache.get("ccusage_installed")
-    if cached is not None:
+    cached = cache.get("ccusage_installed")
+    if isinstance(cached, bool):
         return cached
 
     result = shutil.which("ccusage") is not None
-    _cache.set("ccusage_installed", result)
+    cache.set("ccusage_installed", result)
 
     if not result:
         print("❌ 'ccusage' command not found!")
@@ -30,12 +31,12 @@ def check_ccusage_installed():
     return result
 
 
-def run_ccusage() -> Optional[Dict]:
+def run_ccusage() -> Optional[CcusageData]:
     """Execute ccusage blocks --json command with result caching."""
     # Check cache first (5 second TTL for ccusage data)
-    cached_data = _cache.get("ccusage_data", ttl=5)
+    cached_data = cache.get("ccusage_data", ttl=5)
     if cached_data is not None:
-        return cast(Optional[Dict[Any, Any]], cached_data)
+        return cast(Optional[CcusageData], cached_data)
 
     try:
         # Use PIPE constants for better performance
@@ -48,9 +49,9 @@ def run_ccusage() -> Optional[Dict]:
             timeout=10,
         )
 
-        data = json.loads(result.stdout)
-        _cache.set("ccusage_data", data)
-        return cast(Optional[Dict[Any, Any]], data)
+        data = cast(CcusageData, json.loads(result.stdout))
+        cache.set("ccusage_data", data)
+        return data
 
     except subprocess.TimeoutExpired:
         print("❌ ccusage command timed out")
@@ -60,8 +61,9 @@ def run_ccusage() -> Optional[Dict]:
         return None
     except subprocess.CalledProcessError as e:
         print(f"❌ Error running ccusage: {e}")
-        if e.stderr:
-            print(f"Error details: {e.stderr}")
+        stderr_str = cast(Optional[str], e.stderr)
+        if stderr_str:
+            print(f"Error details: {stderr_str}")
         print("\nPossible solutions:")
         print("1. Make sure you're logged into Claude in your browser")
         print("2. Try running 'ccusage login' if authentication is required")
@@ -71,12 +73,12 @@ def run_ccusage() -> Optional[Dict]:
         return None
 
 
-async def run_ccusage_async() -> Optional[Dict]:
+async def run_ccusage_async() -> Optional[CcusageData]:
     """Async version of run_ccusage for non-blocking execution."""
     # Check cache first
-    cached_data = _cache.get("ccusage_data", ttl=5)
+    cached_data = cache.get("ccusage_data", ttl=5)
     if cached_data is not None:
-        return cast(Optional[Dict[Any, Any]], cached_data)
+        return cast(Optional[CcusageData], cached_data)
 
     try:
         proc = await asyncio.create_subprocess_exec(
@@ -95,9 +97,9 @@ async def run_ccusage_async() -> Optional[Dict]:
                 print(f"❌ Error running ccusage: {stderr.decode()}")
             return None
 
-        data = json.loads(stdout.decode())
-        _cache.set("ccusage_data", data)
-        return cast(Optional[Dict[Any, Any]], data)
+        data = cast(CcusageData, json.loads(stdout.decode()))
+        cache.set("ccusage_data", data)
+        return data
 
     except asyncio.TimeoutError:
         print("❌ ccusage command timed out")
@@ -107,18 +109,18 @@ async def run_ccusage_async() -> Optional[Dict]:
         return None
 
 
-def get_token_limit(plan: str, blocks=None) -> int:
+def get_token_limit(plan: str, blocks: Optional[List[CcusageBlock]] = None) -> int:
     """Get token limit based on plan type (with caching)."""
     # For fixed plans, use cached values
     if plan != "custom_max":
         cache_key = f"token_limit_{plan}"
-        cached = _cache.get(cache_key)
-        if cached is not None:
+        cached = cache.get(cache_key)
+        if isinstance(cached, (int, float)):
             return int(cached)
 
         limits = {"pro": 7000, "max5": 35000, "max20": 140000}
         limit = limits.get(plan, 7000)
-        _cache.set(cache_key, limit)
+        cache.set(cache_key, limit)
         return limit
 
     # For custom_max, calculate from blocks

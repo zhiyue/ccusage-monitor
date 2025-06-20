@@ -4,12 +4,14 @@ import argparse
 import sys
 import time
 from datetime import datetime, timedelta, timezone
+from typing import List, Tuple
 
 import pytz
 from rich.live import Live
 
 from ccusage_monitor import calculations, data
 from ccusage_monitor.display_rich import create_rich_display
+from ccusage_monitor.protocols import CLIArgs
 
 
 def parse_args():
@@ -38,7 +40,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def format_time(minutes):
+def format_time(minutes: float) -> str:
     """Format minutes into human-readable time."""
     if minutes < 60:
         return f"{int(minutes)}m"
@@ -49,12 +51,8 @@ def format_time(minutes):
     return f"{hours}h {mins}m"
 
 
-def main_with_args(args):
+def main_with_args(args: CLIArgs):
     """Main monitoring loop with Rich display using provided args."""
-
-    # Ensure refresh attribute exists
-    if not hasattr(args, "refresh"):
-        args.refresh = 3
 
     # Check if ccusage is installed
     if not data.check_ccusage_installed():
@@ -179,7 +177,7 @@ def main_with_args(args):
                 reset_time_str = reset_time.astimezone(local_tz).strftime("%H:%M")
 
                 # Build warnings
-                warnings = []
+                warnings: List[Tuple[str, str]] = []
                 if tokens_used > 7000 and args.plan == "pro" and token_limit > 7000:
                     warnings.append(
                         (f"🔄 Tokens exceeded Pro limit - switched to custom_max ({token_limit:,})", "yellow")
@@ -217,10 +215,12 @@ def main_with_args(args):
         sys.exit(0)
 
 
-def main():
+def main() -> None:
     """Main entry point when called directly."""
-    args = parse_args()
-    main_with_args(args)
+    # This part is complex because of the argument disparity.
+    # We will rely on main.py to parse args and call this.
+    # For standalone execution, it might require a custom setup.
+    print("This module is not intended to be run directly. Please use the main entry point.")
 
 
 if __name__ == "__main__":

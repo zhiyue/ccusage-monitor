@@ -1,16 +1,25 @@
 """Cache module for performance optimization."""
 
 import time
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Generic, Optional, Tuple, TypeVar, Union
+
+import pytz
+
+from ccusage_monitor.protocols import CcusageData, DisplayValues
+
+T = TypeVar("T")
+
+# The cache can store a variety of types. This Union defines them.
+CacheValue = Union[bool, CcusageData, float, str, pytz.BaseTzInfo, Dict[str, Any], DisplayValues]
 
 
-class Cache:
+class Cache(Generic[T]):
     """Simple in-memory cache with TTL support."""
 
-    def __init__(self):
-        self._cache: Dict[str, Tuple[Any, float]] = {}
+    def __init__(self) -> None:
+        self._cache: Dict[str, Tuple[T, float]] = {}
 
-    def get(self, key: str, ttl: float = 0) -> Optional[Any]:
+    def get(self, key: str, ttl: float = 0) -> Optional[T]:
         """Get value from cache if not expired.
 
         Args:
@@ -32,7 +41,7 @@ class Cache:
 
         return value
 
-    def set(self, key: str, value: Any) -> None:
+    def set(self, key: str, value: T) -> None:
         """Store value in cache with current timestamp."""
         self._cache[key] = (value, time.time())
 
@@ -42,4 +51,4 @@ class Cache:
 
 
 # Global cache instance
-_cache = Cache()
+cache: "Cache[CacheValue]" = Cache()

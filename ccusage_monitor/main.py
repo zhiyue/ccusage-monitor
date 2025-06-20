@@ -4,11 +4,25 @@ import argparse
 import sys
 import time
 from datetime import datetime, timedelta, timezone
+from typing import List
 
 # Import modules with proper typing
 import pytz
 
+from ccusage_monitor import calculations as calculations_regular
+from ccusage_monitor import data as data_regular
+from ccusage_monitor import display as display_regular
+from ccusage_monitor.protocols import (
+    CalculationsProtocol,
+    CLIArgs,
+    DataProtocol,
+    DisplayProtocol,
+)
+
 # Try to import optimized modules, fallback to regular ones
+calculations: CalculationsProtocol
+data: DataProtocol
+display: DisplayProtocol
 try:
     from ccusage_monitor import calculations_optimized as calculations
     from ccusage_monitor import data_optimized as data
@@ -16,16 +30,13 @@ try:
 
     OPTIMIZED = True
 except ImportError:
-    from ccusage_monitor import (
-        calculations,  # type: ignore[no-redef]
-        data,  # type: ignore[no-redef]
-        display,  # type: ignore[no-redef]
-    )
-
+    calculations = calculations_regular
+    data = data_regular
+    display = display_regular
     OPTIMIZED = False
 
 
-def parse_args():
+def parse_args() -> CLIArgs:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Claude Token Monitor - Real-time token usage monitoring")
     parser.add_argument(
@@ -52,10 +63,16 @@ def parse_args():
         action="store_true",
         help="Use Rich library for beautiful terminal UI (experimental)",
     )
-    return parser.parse_args()
+    parser.add_argument(
+        "--refresh",
+        type=int,
+        default=3,
+        help="Refresh interval in seconds (default: 3, for rich mode)",
+    )
+    return parser.parse_args(namespace=CLIArgs())
 
 
-def main():
+def main() -> None:
     """Main monitoring loop."""
     args = parse_args()
 
@@ -84,6 +101,15 @@ def main():
             token_limit = data.get_token_limit("pro")  # Fallback to pro
     else:
         token_limit = data.get_token_limit(args.plan)
+
+    # Color codes
+    cyan = "\033[96m"
+    red = "\033[91m"
+    yellow = "\033[93m"
+    white = "\033[97m"
+    gray = "\033[90m"
+    green = "\033[92m"
+    reset = "\033[0m"
 
     try:
         # Initial screen clear and hide cursor
@@ -149,39 +175,49 @@ def main():
                 # If no burn rate or tokens already depleted, use reset time
                 predicted_end_time = reset_time
 
-            # Color codes
-            cyan = "\033[96m"
-            red = "\033[91m"
-            yellow = "\033[93m"
-            white = "\033[97m"
-            gray = "\033[90m"
-            green = "\033[92m"
-            reset = "\033[0m"
-
-            # Build output in memory first
-            output = []
-
-            # Header
-            output.append(f"{cyan}✦ ✧ ✦ ✧ {reset}{cyan}CLAUDE TOKEN MONITOR{reset} {cyan}✦ ✧ ✦ ✧ {reset}")
-            output.append(f"{cyan}{'=' * 60}{reset}")
-            output.append("")
+            # Build output based on whether we're using optimized display
+            if OPTIMIZED and hasattr(display, '_buffer'):
+                # Use the buffer from display_optimized
+                display.print_header()
+            else:
+                # Build output in memory first for regular display
+                output: List[str] = []
+                # Header
+                output.append(f"{cyan}✦ ✧ ✦ ✧ {reset}{cyan}CLAUDE TOKEN MONITOR{reset} {cyan}✦ ✧ ✦ ✧ {reset}")
+                output.append(f"{cyan}{'=' * 60}{reset}")
+                output.append("")
 
             # Token Usage section
-            output.append(f"📊 {white}Token Usage:{reset}    {display.create_token_progress_bar(usage_percentage)}")
-            output.append("")
+            if OPTIMIZED and hasattr(display, 'writeln'):
+                display.writeln(f"📊 {white}Token Usage:{reset}    {display.create_token_progress_bar(usage_percentage)}")
+                display.writeln()
+            else:
+                output.append(f"📊 {white}Token Usage:{reset}    {display.create_token_progress_bar(usage_percentage)}")
+                output.append("")
 
             # Time to Reset section - calculate progress based on time since last reset
             # Estimate time since last reset (max 5 hours = 300 minutes)
             time_since_reset = max(0, 300 - minutes_to_reset)
-            output.append(f"⏳ {white}Time to Reset:{reset}  {display.create_time_progress_bar(time_since_reset, 300)}")
-            output.append("")
+            if OPTIMIZED and hasattr(display, 'writeln'):
+                display.writeln(f"⏳ {white}Time to Reset:{reset}  {display.create_time_progress_bar(time_since_reset, 300)}")
+                display.writeln()
+            else:
+                output.append(f"⏳ {white}Time to Reset:{reset}  {display.create_time_progress_bar(time_since_reset, 300)}")
+                output.append("")
 
             # Detailed stats
-            output.append(
-                f"🎯 {white}Tokens:{reset}         {white}{tokens_used:,}{reset} / {gray}~{token_limit:,}{reset} ({cyan}{tokens_left:,} left{reset})"
-            )
-            output.append(f"🔥 {white}Burn Rate:{reset}      {yellow}{burn_rate:.1f}{reset} {gray}tokens/min{reset}")
-            output.append("")
+            if OPTIMIZED and hasattr(display, 'writeln'):
+                display.writeln(
+                    f"🎯 {white}Tokens:{reset}         {white}{tokens_used:,}{reset} / {gray}~{token_limit:,}{reset} ({cyan}{tokens_left:,} left{reset})"
+                )
+                display.writeln(f"🔥 {white}Burn Rate:{reset}      {yellow}{burn_rate:.1f}{reset} {gray}tokens/min{reset}")
+                display.writeln()
+            else:
+                output.append(
+                    f"🎯 {white}Tokens:{reset}         {white}{tokens_used:,}{reset} / {gray}~{token_limit:,}{reset} ({cyan}{tokens_left:,} left{reset})"
+                )
+                output.append(f"🔥 {white}Burn Rate:{reset}      {yellow}{burn_rate:.1f}{reset} {gray}tokens/min{reset}")
+                output.append("")
 
             # Predictions - convert to configured timezone for display
             try:
@@ -193,9 +229,14 @@ def main():
 
             predicted_end_str = predicted_end_local.strftime("%H:%M")
             reset_time_str = reset_time_local.strftime("%H:%M")
-            output.append(f"🏁 {white}Predicted End:{reset} {predicted_end_str}")
-            output.append(f"🔄 {white}Token Reset:{reset}   {reset_time_str}")
-            output.append("")
+            if OPTIMIZED and hasattr(display, 'writeln'):
+                display.writeln(f"🏁 {white}Predicted End:{reset} {predicted_end_str}")
+                display.writeln(f"🔄 {white}Token Reset:{reset}   {reset_time_str}")
+                display.writeln()
+            else:
+                output.append(f"🏁 {white}Predicted End:{reset} {predicted_end_str}")
+                output.append(f"🔄 {white}Token Reset:{reset}   {reset_time_str}")
+                output.append("")
 
             # Show notification if we switched to custom_max
             show_switch_notification = False
@@ -207,33 +248,54 @@ def main():
 
             # Show notifications
             if show_switch_notification:
-                output.append(f"🔄 {yellow}Tokens exceeded Pro limit - switched to custom_max ({token_limit:,}){reset}")
-                output.append("")
+                if OPTIMIZED and hasattr(display, 'writeln'):
+                    display.writeln(f"🔄 {yellow}Tokens exceeded Pro limit - switched to custom_max ({token_limit:,}){reset}")
+                    display.writeln()
+                else:
+                    output.append(f"🔄 {yellow}Tokens exceeded Pro limit - switched to custom_max ({token_limit:,}){reset}")
+                    output.append("")
 
             if show_exceed_notification:
-                output.append(f"🚨 {red}TOKENS EXCEEDED MAX LIMIT! ({tokens_used:,} > {token_limit:,}){reset}")
-                output.append("")
+                if OPTIMIZED and hasattr(display, 'writeln'):
+                    display.writeln(f"🚨 {red}TOKENS EXCEEDED MAX LIMIT! ({tokens_used:,} > {token_limit:,}){reset}")
+                    display.writeln()
+                else:
+                    output.append(f"🚨 {red}TOKENS EXCEEDED MAX LIMIT! ({tokens_used:,} > {token_limit:,}){reset}")
+                    output.append("")
 
             # Warning if tokens will run out before reset
             if predicted_end_time < reset_time:
-                output.append(f"⚠️  {red}Tokens will run out BEFORE reset!{reset}")
-                output.append("")
+                if OPTIMIZED and hasattr(display, 'writeln'):
+                    display.writeln(f"⚠️  {red}Tokens will run out BEFORE reset!{reset}")
+                    display.writeln()
+                else:
+                    output.append(f"⚠️  {red}Tokens will run out BEFORE reset!{reset}")
+                    output.append("")
 
             # Status line
             current_time_str = datetime.now().strftime("%H:%M:%S")
             perf_indicator = f" | {green}⚡ OPTIMIZED{reset}" if OPTIMIZED and args.performance else ""
-            output.append(
-                f"⏰ {gray}{current_time_str}{reset} 📝 {cyan}Smooth sailing...{reset}{perf_indicator} | {gray}Ctrl+C to exit{reset} 🟨"
-            )
+            if OPTIMIZED and hasattr(display, 'writeln'):
+                display.writeln(
+                    f"⏰ {gray}{current_time_str}{reset} 📝 {cyan}Smooth sailing...{reset}{perf_indicator} | {gray}Ctrl+C to exit{reset} 🟨"
+                )
+            else:
+                output.append(
+                    f"⏰ {gray}{current_time_str}{reset} 📝 {cyan}Smooth sailing...{reset}{perf_indicator} | {gray}Ctrl+C to exit{reset} 🟨"
+                )
 
-            # Print all output at once
-            output_text = "\n".join(output)
-            print(output_text, end="", flush=False)
+            # Output handling
+            if OPTIMIZED and hasattr(display, 'flush_buffer'):
+                # Flush buffer (only updates if content changed)
+                display.flush_buffer()
+            else:
+                # Print all output at once for regular display
+                output_text = "\n".join(output)
+                print(output_text, end="", flush=False)
+                # Clear any remaining lines from previous output
+                print("\033[J", end="", flush=True)
 
-            # Clear any remaining lines from previous output
-            print("\033[J", end="", flush=True)
-
-            time.sleep(3)
+            time.sleep(args.refresh)
 
     except KeyboardInterrupt:
         # Show cursor before exiting

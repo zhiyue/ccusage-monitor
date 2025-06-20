@@ -2,16 +2,17 @@
 
 import sys
 from io import StringIO
+from typing import cast
 
-from ccusage_monitor.cache import _cache
+from ccusage_monitor.cache import cache
 
 
 class OutputBuffer:
     """Buffer for optimized terminal output."""
 
-    def __init__(self):
-        self.buffer = StringIO()
-        self.last_output = ""
+    def __init__(self) -> None:
+        self.buffer: StringIO = StringIO()
+        self.last_output: str = ""
 
     def write(self, text: str) -> None:
         """Add text to buffer."""
@@ -43,20 +44,36 @@ class OutputBuffer:
 _buffer = OutputBuffer()
 
 
+def write_to_buffer(text: str) -> None:
+    """Public interface to write to buffer."""
+    _buffer.write(text)
+
+
+def writeln(text: str = "") -> None:
+    """Public interface to writeln."""
+    _buffer.writeln(text)
+
+
+def flush_buffer() -> None:
+    """Public interface to flush buffer."""
+    _buffer.flush()
+
+
 def print_header() -> None:
     """Print header with caching."""
     # Header doesn't change, so cache it
-    cached = _cache.get("header_output")
+    cached = cache.get("header_output")
     if cached is None:
         cyan = "\033[96m"
         blue = "\033[94m"
         reset = "\033[0m"
         sparkles = f"{cyan}✦ ✧ ✦ ✧ {reset}"
 
-        cached = f"{sparkles}{cyan}CLAUDE TOKEN MONITOR{reset} {sparkles}\n{blue}{'=' * 60}{reset}\n\n"
-        _cache.set("header_output", cached)
+        header_str = f"{sparkles}{cyan}CLAUDE TOKEN MONITOR{reset} {sparkles}\n{blue}{'=' * 60}{reset}\n\n"
+        cache.set("header_output", header_str)
+        cached = header_str
 
-    _buffer.write(cached)
+    write_to_buffer(cast(str, cached))
 
 
 def create_token_progress_bar(percentage: float, width: int = 50) -> str:
@@ -65,9 +82,9 @@ def create_token_progress_bar(percentage: float, width: int = 50) -> str:
     rounded_pct = round(percentage, 1)
     cache_key = f"token_bar_{rounded_pct}_{width}"
 
-    cached = _cache.get(cache_key)
+    cached = cache.get(cache_key)
     if cached is not None:
-        return str(cached)
+        return cast(str, cached)
 
     filled = int(width * percentage / 100)
     green_bar = "█" * filled
@@ -75,7 +92,7 @@ def create_token_progress_bar(percentage: float, width: int = 50) -> str:
 
     # Use pre-defined color codes
     result = f"🟢 [\033[92m{green_bar}\033[91m{red_bar}\033[0m] {percentage:.1f}%"
-    _cache.set(cache_key, result)
+    cache.set(cache_key, result)
     return result
 
 
@@ -87,9 +104,9 @@ def create_time_progress_bar(elapsed_minutes: float, total_minutes: float, width
     rounded_elapsed = round(elapsed_minutes)
     cache_key = f"time_bar_{rounded_elapsed}_{total_minutes}_{width}"
 
-    cached = _cache.get(cache_key)
+    cached = cache.get(cache_key)
     if cached is not None:
-        return str(cached)
+        return cast(str, cached)
 
     filled = int(width * percentage / 100)
     blue_bar = "█" * filled
@@ -97,7 +114,7 @@ def create_time_progress_bar(elapsed_minutes: float, total_minutes: float, width
 
     remaining_time = format_time(max(0, total_minutes - elapsed_minutes))
     result = f"⏰ [\033[94m{blue_bar}\033[91m{red_bar}\033[0m] {remaining_time}"
-    _cache.set(cache_key, result)
+    cache.set(cache_key, result)
     return result
 
 
@@ -106,9 +123,9 @@ def format_time(minutes: float) -> str:
     # Round to nearest minute for better caching
     rounded_minutes = round(minutes)
 
-    cached = _cache.get(f"time_format_{rounded_minutes}")
+    cached = cache.get(f"time_format_{rounded_minutes}")
     if cached is not None:
-        return str(cached)
+        return cast(str, cached)
 
     if rounded_minutes < 60:
         result = f"{rounded_minutes}m"
@@ -117,7 +134,7 @@ def format_time(minutes: float) -> str:
         mins = rounded_minutes % 60
         result = f"{hours}h" if mins == 0 else f"{hours}h {mins}m"
 
-    _cache.set(f"time_format_{rounded_minutes}", result)
+    cache.set(f"time_format_{rounded_minutes}", result)
     return result
 
 

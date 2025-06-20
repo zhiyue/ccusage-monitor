@@ -1,17 +1,20 @@
 """Calculations module for business logic."""
 
 from datetime import datetime, timedelta
+from typing import List, Optional
 
 import pytz
 
+from .protocols import CcusageBlock
 
-def calculate_hourly_burn_rate(blocks, current_time):
+
+def calculate_hourly_burn_rate(blocks: List[CcusageBlock], current_time: datetime) -> float:
     """Calculate burn rate based on all sessions in the last hour."""
     if not blocks:
         return 0
 
     one_hour_ago = current_time - timedelta(hours=1)
-    total_tokens = 0
+    total_tokens = 0.0
 
     for block in blocks:
         start_time_str = block.get("startTime")
@@ -62,7 +65,9 @@ def calculate_hourly_burn_rate(blocks, current_time):
     return total_tokens / 60 if total_tokens > 0 else 0
 
 
-def get_next_reset_time(current_time, custom_reset_hour=None, timezone_str="Europe/Warsaw"):
+def get_next_reset_time(
+    current_time: datetime, custom_reset_hour: Optional[int] = None, timezone_str: str = "Europe/Warsaw"
+) -> datetime:
     """Calculate next token reset time based on fixed 5-hour intervals.
     Default reset times in specified timezone: 04:00, 09:00, 14:00, 18:00, 23:00
     Or use custom reset hour if provided.
@@ -114,7 +119,7 @@ def get_next_reset_time(current_time, custom_reset_hour=None, timezone_str="Euro
     return next_reset
 
 
-def get_velocity_indicator(burn_rate):
+def get_velocity_indicator(burn_rate: float) -> str:
     """Get velocity emoji based on burn rate."""
     if burn_rate < 50:
         return "🐌"  # Slow
