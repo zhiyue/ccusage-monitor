@@ -74,8 +74,8 @@ def main():
         display.hide_cursor()
 
         while True:
-            # Clear screen and move cursor to home position
-            print("\033[2J\033[H", end="", flush=True)
+            # Move cursor to home position without clearing (reduce flicker)
+            print("\033[H", end="", flush=True)
 
             ccusage_data = data.run_ccusage()
             if not ccusage_data or "blocks" not in ccusage_data:
@@ -141,25 +141,30 @@ def main():
             green = "\033[92m"
             reset = "\033[0m"
 
-            # Display header
-            display.print_header()
+            # Build output in memory first
+            output = []
+
+            # Header
+            output.append(f"{cyan}✦ ✧ ✦ ✧ {reset}{cyan}CLAUDE TOKEN MONITOR{reset} {cyan}✦ ✧ ✦ ✧ {reset}")
+            output.append(f"{cyan}{'=' * 60}{reset}")
+            output.append("")
 
             # Token Usage section
-            print(f"📊 {white}Token Usage:{reset}    {display.create_token_progress_bar(usage_percentage)}")
-            print()
+            output.append(f"📊 {white}Token Usage:{reset}    {display.create_token_progress_bar(usage_percentage)}")
+            output.append("")
 
             # Time to Reset section - calculate progress based on time since last reset
             # Estimate time since last reset (max 5 hours = 300 minutes)
             time_since_reset = max(0, 300 - minutes_to_reset)
-            print(f"⏳ {white}Time to Reset:{reset}  {display.create_time_progress_bar(time_since_reset, 300)}")
-            print()
+            output.append(f"⏳ {white}Time to Reset:{reset}  {display.create_time_progress_bar(time_since_reset, 300)}")
+            output.append("")
 
             # Detailed stats
-            print(
+            output.append(
                 f"🎯 {white}Tokens:{reset}         {white}{tokens_used:,}{reset} / {gray}~{token_limit:,}{reset} ({cyan}{tokens_left:,} left{reset})"
             )
-            print(f"🔥 {white}Burn Rate:{reset}      {yellow}{burn_rate:.1f}{reset} {gray}tokens/min{reset}")
-            print()
+            output.append(f"🔥 {white}Burn Rate:{reset}      {yellow}{burn_rate:.1f}{reset} {gray}tokens/min{reset}")
+            output.append("")
 
             # Predictions - convert to configured timezone for display
             try:
@@ -171,9 +176,9 @@ def main():
 
             predicted_end_str = predicted_end_local.strftime("%H:%M")
             reset_time_str = reset_time_local.strftime("%H:%M")
-            print(f"🏁 {white}Predicted End:{reset} {predicted_end_str}")
-            print(f"🔄 {white}Token Reset:{reset}   {reset_time_str}")
-            print()
+            output.append(f"🏁 {white}Predicted End:{reset} {predicted_end_str}")
+            output.append(f"🔄 {white}Token Reset:{reset}   {reset_time_str}")
+            output.append("")
 
             # Show notification if we switched to custom_max
             show_switch_notification = False
@@ -185,26 +190,31 @@ def main():
 
             # Show notifications
             if show_switch_notification:
-                print(f"🔄 {yellow}Tokens exceeded Pro limit - switched to custom_max ({token_limit:,}){reset}")
-                print()
+                output.append(f"🔄 {yellow}Tokens exceeded Pro limit - switched to custom_max ({token_limit:,}){reset}")
+                output.append("")
 
             if show_exceed_notification:
-                print(f"🚨 {red}TOKENS EXCEEDED MAX LIMIT! ({tokens_used:,} > {token_limit:,}){reset}")
-                print()
+                output.append(f"🚨 {red}TOKENS EXCEEDED MAX LIMIT! ({tokens_used:,} > {token_limit:,}){reset}")
+                output.append("")
 
             # Warning if tokens will run out before reset
             if predicted_end_time < reset_time:
-                print(f"⚠️  {red}Tokens will run out BEFORE reset!{reset}")
-                print()
+                output.append(f"⚠️  {red}Tokens will run out BEFORE reset!{reset}")
+                output.append("")
 
             # Status line
             current_time_str = datetime.now().strftime("%H:%M:%S")
             perf_indicator = f" | {green}⚡ OPTIMIZED{reset}" if OPTIMIZED and args.performance else ""
-            print(
+            output.append(
                 f"⏰ {gray}{current_time_str}{reset} 📝 {cyan}Smooth sailing...{reset}{perf_indicator} | {gray}Ctrl+C to exit{reset} 🟨"
             )
 
-            # No need to clear below cursor since we clear the whole screen each time
+            # Print all output at once
+            output_text = "\n".join(output)
+            print(output_text, end="", flush=False)
+
+            # Clear any remaining lines from previous output
+            print("\033[J", end="", flush=True)
 
             time.sleep(3)
 
