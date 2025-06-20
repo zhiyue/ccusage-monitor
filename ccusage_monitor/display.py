@@ -89,3 +89,13 @@ def move_cursor_to_top() -> None:
 def clear_below_cursor() -> None:
     """Clear any remaining lines below cursor."""
     print("\033[J", end="", flush=True)
+
+
+def writeln(text: str = "") -> None:
+    """Print text with newline - compatibility with optimized version."""
+    print(text)
+
+
+def flush_buffer() -> None:
+    """Flush output - compatibility with optimized version (no-op)."""
+    pass
