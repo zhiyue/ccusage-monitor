@@ -33,6 +33,9 @@ ccusage-monitor/
 
 ### Python Style
 - Follow PEP 8
+- **All Python code MUST pass ruff checks** - run `ruff check` before committing
+  - Use `ruff check --fix` to auto-fix issues when safe
+  - Configure ruff settings in pyproject.toml
 - Use type hints where beneficial
 - Keep functions focused and testable
 - Prefer descriptive variable names
@@ -68,7 +71,9 @@ ccusage-monitor/
 
 ### Development
 - pytest & pytest-cov (testing)
-- black, flake8, mypy (code quality)
+- ruff (linting and code quality - primary tool)
+- black (code formatting)
+- mypy (type checking)
 - GitHub Actions (CI/CD)
 
 ## Key Functions
@@ -85,8 +90,24 @@ ccusage-monitor/
 - `format_time()` - Human-readable time formatting
 - `print_header()` - Styled terminal header
 
-## Testing Commands
+## Quality Check Commands
 
+### Linting with Ruff
+```bash
+# Check all Python files
+ruff check .
+
+# Auto-fix safe issues
+ruff check --fix .
+
+# Check specific file
+ruff check ccusage_monitor.py
+
+# Show all available rules
+ruff rule --all
+```
+
+### Testing
 ```bash
 # Run all tests
 pytest
@@ -96,6 +117,15 @@ pytest --cov=ccusage_monitor
 
 # Run specific test file
 pytest tests/test_ccusage_monitor.py -v
+```
+
+### Code Formatting
+```bash
+# Format with black
+black .
+
+# Check formatting without changing
+black --check .
 ```
 
 ## Common Tasks
