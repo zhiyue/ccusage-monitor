@@ -80,10 +80,7 @@ def create_token_progress_bar(percentage, width=50):
 
 def create_time_progress_bar(elapsed_minutes, total_minutes, width=50):
     """Create a time progress bar showing time until reset."""
-    if total_minutes <= 0:
-        percentage = 0
-    else:
-        percentage = min(100, (elapsed_minutes / total_minutes) * 100)
+    percentage = 0 if total_minutes <= 0 else min(100, (elapsed_minutes / total_minutes) * 100)
 
     filled = int(width * percentage / 100)
 
@@ -202,12 +199,8 @@ def get_next_reset_time(current_time, custom_reset_hour=None, timezone_str="Euro
         # Assume current_time is in target timezone if not specified
         target_time = target_tz.localize(current_time)
 
-    if custom_reset_hour is not None:
-        # Use single daily reset at custom hour
-        reset_hours = [custom_reset_hour]
-    else:
-        # Default 5-hour intervals
-        reset_hours = [4, 9, 14, 18, 23]
+    # Use single daily reset at custom hour or default 5-hour intervals
+    reset_hours = [custom_reset_hour] if custom_reset_hour is not None else [4, 9, 14, 18, 23]
 
     # Get current hour and minute
     current_hour = target_time.hour
