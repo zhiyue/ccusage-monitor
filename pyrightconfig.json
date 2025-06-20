@@ -5,15 +5,19 @@
   "reportRedeclaration": "none",
   "reportConstantRedefinition": "none",
   "reportUnusedCallResult": "none",
+  "reportMissingImports": "warning",
   "pythonVersion": "3.8",
+  "extraPaths": ["."],
   "executionEnvironments": [
     {
       "root": "ccusage_monitor",
-      "reportUninitializedInstanceVariable": "error"
+      "reportUninitializedInstanceVariable": "error",
+      "extraPaths": ["."]
     },
     {
       "root": "tests",
-      "reportUninitializedInstanceVariable": "none"
+      "reportUninitializedInstanceVariable": "none",
+      "extraPaths": ["."]
     }
   ]
 }
