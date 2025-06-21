@@ -47,7 +47,14 @@ def main_with_args(args: CLIArgs):
 
     try:
         # Use Rich's Live display for flicker-free updates
-        with Live(display.layout, refresh_per_second=0.5, screen=False, transient=False, redirect_stdout=False, redirect_stderr=False):
+        with Live(
+            display.layout,
+            refresh_per_second=1,
+            screen=True,
+            transient=False,
+            redirect_stdout=False,
+            redirect_stderr=False,
+        ):
             while True:
                 ccusage_data = data.run_ccusage()
                 if not ccusage_data or "blocks" not in ccusage_data:

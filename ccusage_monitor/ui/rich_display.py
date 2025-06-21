@@ -42,41 +42,47 @@ class RichDisplay:
     """Rich-based display manager for ccusage monitor."""
 
     def __init__(self):
-        self.console: Console = Console()
+        # Disable emoji rendering globally to prevent width issues
+        self.console: Console = Console(emoji=False)
         self.layout: Layout = Layout()
         self._trend_data: List[float] = []
         self._setup_layout()
 
     def _setup_layout(self):
         """Setup the layout structure."""
-        # Total: 3 + 5 + 7 + 4 + 2 = 21 lines
         self.layout.split_column(
-            Layout(name="header", size=3),
-            Layout(name="progress", size=5),
-            Layout(name="stats", size=7),
-            Layout(name="warnings", size=4),
-            Layout(name="status", size=2),
+            Layout(name="header", size=4),
+            Layout(ratio=1, name="body"),
+            Layout(size=2, name="status"),
         )
 
     def create_header(self) -> Panel:
         """Create the header panel without animation."""
-        header_text = Text()
-        header_text.append("✨ ", style="bold bright_cyan")
-        header_text.append("CLAUDE TOKEN MONITOR", style="bold bright_white on blue")
-        header_text.append(" ✨", style="bold bright_cyan")
+        # Create a table for proper alignment
+        header_table = Table(show_header=False, box=None, expand=True, padding=0)
+        # Left label column (no wrap)
+        header_table.add_column(style="bold bright_yellow", no_wrap=True)
+        # Flexible spacer column that will take up remaining width
+        header_table.add_column(ratio=1)
+        # Right subtitle column (no wrap, right-aligned)
+        header_table.add_column(style="dim", no_wrap=True, justify="right")
 
-        centered_header = Align.center(header_text)
+        # First row: left label, spacer, right subtitle
+        header_table.add_row("AI Monitor", "", "Real-time Usage Tracking")
+
+        # Second row: Centered main title
+        main_title = Text()
+        main_title.append("✨ ", style="bold bright_cyan")
+        main_title.append("CLAUDE TOKEN MONITOR", style="bold bright_white on blue")
+        main_title.append(" ✨", style="bold bright_cyan")
+
+        header_content = Group(header_table, Align.center(main_title))
 
         return Panel(
-            centered_header,
+            header_content,
             box=box.DOUBLE,
             style="bright_blue",
             expand=True,
-            title="[bold bright_yellow]🤖 AI Monitor[/]",
-            title_align="left",
-            subtitle="[dim]Real-time Usage Tracking[/]",
-            subtitle_align="right",
-            height=3,  # Fixed height to match layout
         )
 
     def create_progress_panel(self, token_pct: float, time_pct: float, time_remaining: str) -> Panel:
@@ -84,17 +90,14 @@ class RichDisplay:
         # Determine token bar color based on usage
         if token_pct < 50:
             token_style = "green"
-            token_emoji = "🟢"
         elif token_pct < 80:
             token_style = "yellow"
-            token_emoji = "🟡"
         else:
             token_style = "red"
-            token_emoji = "🔴"
 
         # Token progress bar
         token_progress = Progress(
-            TextColumn(f"[bold bright_white]{token_emoji} Token Usage:[/]"),
+            TextColumn("[bold bright_white]Token Usage:[/]"),
             BarColumn(
                 bar_width=50,
                 complete_style=f"bold {token_style}",
@@ -107,7 +110,7 @@ class RichDisplay:
 
         # Time progress bar
         time_progress = Progress(
-            TextColumn("[bold bright_white]⏰ Time to Reset:[/]"),
+            TextColumn("[bold bright_white]Time to Reset:[/]"),
             BarColumn(
                 bar_width=50,
                 complete_style="bold bright_blue",
@@ -122,7 +125,6 @@ class RichDisplay:
         # Combine in a table with better spacing
         table = Table(show_header=False, box=None, padding=(0, 2))
         table.add_row(token_progress)
-        table.add_row("")  # Empty row for spacing
         table.add_row(time_progress)
 
         # Don't center table to maintain consistent layout
@@ -130,10 +132,9 @@ class RichDisplay:
             table,
             box=box.ROUNDED,
             border_style="bright_blue",
-            title="[bold bright_yellow]📈 Progress Tracking[/]",
+            title="[bold bright_yellow]Progress Tracking[/]",
             title_align="center",
             padding=0,  # No padding to save space
-            height=5,  # Fixed height to match layout
         )
 
     def create_stats_panel(self, stats: StatsData) -> Panel:
@@ -150,83 +151,67 @@ class RichDisplay:
         tokens_text.append(" (", style="dim white")
         tokens_text.append(f"{stats['tokens_left']:,} left", style="bold bright_cyan")
         tokens_text.append(")", style="dim white")
-        table.add_row("🎯 Tokens:", tokens_text)
+        table.add_row("Tokens:", tokens_text)
 
         # Burn rate row with color coding
         burn_text = Text()
         if stats["burn_rate"] > 100:
             burn_style = "bold red"
-            burn_emoji = "🚨"
         elif stats["burn_rate"] > 50:
             burn_style = "bold yellow"
-            burn_emoji = "⚡"
         else:
             burn_style = "bold green"
-            burn_emoji = "🔥"
 
         burn_text.append(f"{stats['burn_rate']:.1f}", style=burn_style)
         burn_text.append(" tokens/min", style="dim white")
-        table.add_row(f"{burn_emoji} Burn Rate:", burn_text)
-
-        table.add_row("", "")  # Empty row for spacing
+        table.add_row("Burn Rate:", burn_text)
 
         # Predictions with enhanced styling
         pred_text = Text(stats["predicted_end"], style="bold bright_magenta")
-        table.add_row("🏁 Predicted End:", pred_text)
+        table.add_row("Predicted End:", pred_text)
 
         reset_text = Text(stats["reset_time"], style="bold bright_yellow")
-        table.add_row("🔄 Token Reset:", reset_text)
-
-        table.add_row("", "")  # Empty row for spacing
+        table.add_row("Token Reset:", reset_text)
 
         # Session cost
         cost_text = Text()
         if stats["cost_usd"] > 10:
             cost_style = "bold red"
-            cost_emoji = "💳"
         elif stats["cost_usd"] > 1:
             cost_style = "bold yellow"
-            cost_emoji = "💸"
         else:
             cost_style = "bold green"
-            cost_emoji = "💰"
 
         cost_text.append(f"${stats['cost_usd']:.2f}", style=cost_style)
         cost_text.append(" this 5hr window", style="dim white")
-        table.add_row(f"{cost_emoji} Cost:", cost_text)
+        table.add_row("Cost:", cost_text)
 
         # Don't center stats to maintain consistent layout
         return Panel(
             table,
             box=box.ROUNDED,
             border_style="bright_green",
-            title="[bold bright_yellow]📊 Token Statistics[/]",
+            title="[bold bright_yellow]Token Statistics[/]",
             title_align="center",
             padding=0,  # No padding to save space
-            height=7,  # Fixed height to match layout
         )
 
     def create_warnings_panel(self, warnings: List[Tuple[str, str]]) -> Panel:
         """Create warnings panel with fixed height."""
         # Always create exactly 2 lines of content
         lines: List[str] = []
-        
+
         if not warnings:
-            lines.append("✅ All systems running smoothly")
-            lines.append("")  # Empty second line
+            lines.append("All systems running smoothly")
             border_style = "bright_green"
-            title = "[bold bright_green]🟢 System Status[/]"
+            title = "[bold bright_green]System Status[/]"
         else:
             # Take only first 2 warnings
             for warning in warnings[:2]:
-                lines.append(f"⚠️  {warning[0]}")
-            
-            # Pad to exactly 2 lines
-            while len(lines) < 2:
-                lines.append("")
-                
+                lines.append(warning[0])
+
             border_style = "bold red"
-            title = "[bold red]🚨 Warnings[/]"
+            title = "[bold red]Warnings[/]"
 
         # Create fixed content with exact line count
         content = "\n".join(lines)
@@ -238,23 +223,16 @@ class RichDisplay:
             title=title,
             title_align="center",
             padding=(0, 1),  # Minimal padding
-            height=4,  # Fixed height
             expand=True,
         )
 
     def create_status_bar(self, time_str: str, message: str = "Smooth sailing...") -> Panel:
         """Create the status bar."""
         status = Text()
-        status.append("⏰ ", style="bold bright_blue")
         status.append(time_str, style="bold bright_white")
         status.append(" │ ", style="dim white")
-        status.append("📝 ", style="bold bright_green")
         status.append(message, style="bold bright_cyan")
-        status.append(" │ ", style="dim white")
-        status.append("Press ", style="dim white")
-        status.append("Ctrl+C", style="bold red")
-        status.append(" to exit", style="dim white")
-        status.append(" ✨", style="bright_yellow")
+        status.append(" │ Press Ctrl+C to exit", style="dim white")
 
         return Panel(
             Align.center(status),
@@ -320,11 +298,15 @@ class RichDisplay:
 
     def create_display_group(self, data: DisplayData) -> Group:
         """Create a group of all display elements."""
-        return Group(
-            self.create_header(),
+        # This function might need adjustment for the new layout
+        main_content = Group(
             self.create_progress_panel(data["token_pct"], data["time_pct"], data["time_remaining"]),
             self.create_stats_panel(data["stats"]),
             self.create_warnings_panel(data["warnings"]),
+        )
+        return Group(
+            self.create_header(),
+            main_content,
             self.create_status_bar(datetime.now().strftime("%H:%M:%S"), data["status_message"]),
         )
 
@@ -333,16 +315,14 @@ class RichDisplay:
         # Update header
         self.layout["header"].update(self.create_header())
 
-        # Update progress
-        self.layout["progress"].update(
-            self.create_progress_panel(data["token_pct"], data["time_pct"], data["time_remaining"])
+        # Group all main content vertically
+        main_content = Group(
+            self.create_progress_panel(data["token_pct"], data["time_pct"], data["time_remaining"]),
+            self.create_stats_panel(data["stats"]),
+            self.create_warnings_panel(data["warnings"]),
         )
 
-        # Update stats
-        self.layout["stats"].update(self.create_stats_panel(data["stats"]))
-
-        # Update warnings
-        self.layout["warnings"].update(self.create_warnings_panel(data["warnings"]))
+        self.layout["body"].update(main_content)
 
         # Update status
         self.layout["status"].update(
