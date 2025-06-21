@@ -69,12 +69,22 @@ ccusage-monitor --rich
 
 ## 📚 Documentation
 
+### 📖 User Documentation
 - [Installation Guide](docs/INSTALL.md) - Detailed installation instructions
 - [Usage Guide](docs/USAGE.md) - Complete usage documentation
 - [Configuration](docs/CONFIG.md) - All configuration options
+- [Rich UI Guide](docs/RICH_UI.md) - Beautiful terminal interface guide
+
+### 🏗️ Developer Documentation
+- [Project Architecture](docs/ARCHITECTURE.md) - Complete system architecture overview
+- [Project Flowchart](docs/FLOWCHART.md) - Visual system flow and process diagrams
+- [Developer Guide](docs/DEVELOPER_GUIDE.md) - Development setup and contribution guide
+- [API Reference](docs/API_REFERENCE.md) - Complete API documentation
+
+### 🔧 Support Documentation
 - [Troubleshooting](TROUBLESHOOTING.md) - Common issues and solutions
-- [Contributing](CONTRIBUTING.md) - How to contribute
-- [Changelog](CHANGELOG.md) - Version history
+- [Contributing](CONTRIBUTING.md) - How to contribute to the project
+- [Changelog](CHANGELOG.md) - Version history and updates
 
 ## 🤝 Contributing
 
