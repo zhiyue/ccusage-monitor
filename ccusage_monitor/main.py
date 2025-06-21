@@ -9,6 +9,7 @@ from typing import List
 import pytz
 
 from ccusage_monitor.core import calculations, data
+from ccusage_monitor.core.performance import adaptive_refresh, get_performance_summary, format_cached
 from ccusage_monitor.protocols import CLIArgs
 from ccusage_monitor.ui import display
 
@@ -290,12 +291,25 @@ def main() -> None:
                 # Clear any remaining lines from previous output
                 print("\033[J", end="", flush=True)
 
-            time.sleep(args.refresh)
+            # Use adaptive refresh rate for better performance
+            refresh_rate = adaptive_refresh.get_refresh_rate() if args.performance else args.refresh
+            time.sleep(refresh_rate)
 
     except KeyboardInterrupt:
         # Show cursor before exiting
         display.show_cursor()
         print(f"\n\n{cyan}Monitoring stopped.{reset}")
+
+        # Show performance summary if requested
+        if args.performance:
+            print(f"\n{cyan}Performance Summary:{reset}")
+            summary = get_performance_summary()
+            if "metrics" in summary:
+                for name, stats in summary["metrics"].items():
+                    if stats["count"] > 0:
+                        print(f"  {name}: {stats['avg']*1000:.1f}ms avg ({stats['count']} calls)")
+            print(f"  Adaptive refresh rate: {summary.get('refresh_rate', args.refresh):.1f}s")
+
         # Clear the terminal
         display.clear_screen()
         sys.exit(0)

@@ -2,11 +2,14 @@
 
 import asyncio
 import json
+import os
 import shutil
 import subprocess
+import time
 from typing import List, Optional, cast
 
 from ccusage_monitor.core.cache import cache
+from ccusage_monitor.core.performance import timed_operation
 from ccusage_monitor.protocols import CcusageBlock, CcusageData
 
 
@@ -31,46 +34,99 @@ def check_ccusage_installed() -> bool:
     return result
 
 
+@timed_operation("ccusage_execution")
 def run_ccusage() -> Optional[CcusageData]:
-    """Execute ccusage blocks --json command with result caching."""
-    # Check cache first (5 second TTL for ccusage data)
-    cached_data = cache.get("ccusage_data", ttl=5)
+    """Execute ccusage blocks --json command with enhanced caching and error handling."""
+    # Check cache first with adaptive TTL based on system load
+    cache_ttl = _get_adaptive_cache_ttl()
+    cached_data = cache.get("ccusage_data", ttl=cache_ttl)
     if cached_data is not None:
         return cast(Optional[CcusageData], cached_data)
 
+    # Check if we're in a retry cooldown period
+    last_error_time = cache.get("ccusage_last_error_time")
+    if last_error_time and isinstance(last_error_time, float):
+        if time.time() - last_error_time < 30:  # 30 second cooldown
+            return cache.get("ccusage_data_fallback")
+
     try:
-        # Use PIPE constants for better performance
+        # Optimized subprocess execution
         result = subprocess.run(
             ["ccusage", "blocks", "--offline", "--json"],
             capture_output=True,
             text=True,
             check=True,
-            # Limit execution time
-            timeout=10,
+            timeout=8,  # Reduced timeout for faster failure detection
+            # Optimize subprocess environment
+            env={**os.environ, "NODE_OPTIONS": "--max-old-space-size=512"}
         )
 
         data = cast(CcusageData, json.loads(result.stdout))
+
+        # Cache both current and fallback data
         cache.set("ccusage_data", data)
+        cache.set("ccusage_data_fallback", data)  # Fallback for errors
+
+        # Clear error state
+        cache.set("ccusage_last_error_time", None)
+
         return data
 
     except subprocess.TimeoutExpired:
-        print("❌ ccusage command timed out")
-        return None
+        _handle_ccusage_error("ccusage command timed out", "timeout")
+        return _get_fallback_data()
     except FileNotFoundError:
-        print("❌ ccusage command not found. Please install it with: npm install -g ccusage")
+        _handle_ccusage_error("ccusage command not found. Please install it with: npm install -g ccusage", "not_found")
         return None
     except subprocess.CalledProcessError as e:
-        print(f"❌ Error running ccusage: {e}")
-        stderr_str = cast(Optional[str], e.stderr)
-        if stderr_str:
-            print(f"Error details: {stderr_str}")
-        print("\nPossible solutions:")
-        print("1. Make sure you're logged into Claude in your browser")
-        print("2. Try running 'ccusage login' if authentication is required")
-        return None
+        error_msg = f"Error running ccusage: {e}"
+        if e.stderr:
+            error_msg += f"\nError details: {e.stderr}"
+        _handle_ccusage_error(error_msg, "process_error")
+        return _get_fallback_data()
     except json.JSONDecodeError as e:
-        print(f"❌ Error parsing JSON from ccusage: {e}")
-        return None
+        _handle_ccusage_error(f"Error parsing JSON from ccusage: {e}", "json_error")
+        return _get_fallback_data()
+
+
+def _get_adaptive_cache_ttl() -> float:
+    """Get adaptive cache TTL based on system performance."""
+    # Start with base TTL
+    base_ttl = 5.0
+
+    # Check cache hit rate
+    stats = cache.get_stats()
+    hit_rate = stats.get("hit_rate", 0)
+
+    # Increase TTL if hit rate is low (system under stress)
+    if hit_rate < 50:
+        return base_ttl * 2
+    elif hit_rate > 80:
+        return base_ttl * 0.8
+
+    return base_ttl
+
+
+def _handle_ccusage_error(error_msg: str, error_type: str) -> None:
+    """Handle ccusage errors with rate limiting."""
+    current_time = time.time()
+    last_error_time = cache.get(f"ccusage_last_{error_type}_error")
+
+    # Only print error if it hasn't been shown recently (avoid spam)
+    if not last_error_time or current_time - last_error_time > 60:
+        print(f"❌ {error_msg}")
+        if error_type == "process_error":
+            print("\nPossible solutions:")
+            print("1. Make sure you're logged into Claude in your browser")
+            print("2. Try running 'ccusage login' if authentication is required")
+        cache.set(f"ccusage_last_{error_type}_error", current_time)
+
+    cache.set("ccusage_last_error_time", current_time)
+
+
+def _get_fallback_data() -> Optional[CcusageData]:
+    """Get fallback data when ccusage fails."""
+    return cache.get("ccusage_data_fallback")
 
 
 async def run_ccusage_async() -> Optional[CcusageData]:
