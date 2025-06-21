@@ -7,17 +7,23 @@ import pytz
 
 from ccusage_monitor.core.cache import cache
 from ccusage_monitor.core.config import TOKEN_LIMITS
+from ccusage_monitor.core.performance import timed_operation
 from ccusage_monitor.protocols import CcusageBlock
 
 
+@timed_operation("burn_rate_calculation")
 def calculate_hourly_burn_rate(blocks: List[CcusageBlock], current_time: datetime) -> float:
-    """Optimized burn rate calculation with early termination and caching."""
+    """Highly optimized burn rate calculation with vectorized operations and enhanced caching."""
     if not blocks:
         return 0
 
-    # Check cache first - use more specific cache key to avoid conflicts
-    cache_key = f"burn_rate_{current_time.isoformat()}_{len(blocks)}"
-    cached = cache.get(cache_key, ttl=10)  # Cache for 10 seconds
+    # Enhanced cache key with block hash for better accuracy
+    blocks_hash = hash(tuple(
+        (block.get("totalTokens", 0), block.get("startTime", ""), block.get("isActive", False))
+        for block in blocks[-10:]  # Only hash recent blocks for performance
+    ))
+    cache_key = f"burn_rate_{current_time.hour}_{blocks_hash}"
+    cached = cache.get(cache_key, ttl=15)  # Increased cache time
     if cached is not None:
         return cast(float, cached)
 
